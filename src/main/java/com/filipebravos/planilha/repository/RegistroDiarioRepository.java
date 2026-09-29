@@ -10,5 +10,9 @@ public interface RegistroDiarioRepository extends JpaRepository<RegistroDiario, 
 
     List<RegistroDiario> findAllByOrderByDataAscIdAsc();
 
+    List<RegistroDiario> findByDataGreaterThanEqualOrderByDataAscIdAsc(LocalDate inicio);
+
+    List<RegistroDiario> findByDataLessThanEqualOrderByDataAscIdAsc(LocalDate fim);
+
     List<RegistroDiario> findByDataBetweenOrderByDataAscIdAsc(LocalDate inicio, LocalDate fim);
 }

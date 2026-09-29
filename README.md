@@ -1,13 +1,16 @@
 # Sistema Planilha - Back
 
-API (Java 21 + Spring Boot 3) do controle financeiro diário de motorista de aplicativo (Vagner e Filipe).
+API (Java 21 + Spring Boot 3 + PostgreSQL) do controle financeiro diário de motorista de aplicativo (Vagner e Filipe).
 
 ## Executar
 ```bash
 mvn spring-boot:run     # http://localhost:8080
 mvn test
 ```
-Banco H2 em arquivo (`./data`). CORS liberado para `http://localhost:4200` (`app.cors.allowed-origins`).
+Banco PostgreSQL. Suba um local com `docker compose up -d` (usa `docker-compose.yml`) ou aponte para o seu
+servidor com as variáveis `DB_URL`, `DB_USER` e `DB_PASSWORD` (padrão: `jdbc:postgresql://localhost:5432/planilha`, usuário/senha `planilha`).
+As tabelas são criadas automaticamente. Os testes usam H2 em memória e não precisam do PostgreSQL.
+CORS liberado para `http://localhost:4200` (variável `CORS_ORIGINS`).
 
 ## Endpoints
 | Método | Rota | Descrição |

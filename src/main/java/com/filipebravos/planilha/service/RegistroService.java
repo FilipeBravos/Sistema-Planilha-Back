@@ -55,9 +55,13 @@ public class RegistroService {
         if (inicio == null && fim == null) {
             return repository.findAllByOrderByDataAscIdAsc();
         }
-        return repository.findByDataBetweenOrderByDataAscIdAsc(
-                inicio != null ? inicio : LocalDate.MIN,
-                fim != null ? fim : LocalDate.MAX);
+        if (fim == null) {
+            return repository.findByDataGreaterThanEqualOrderByDataAscIdAsc(inicio);
+        }
+        if (inicio == null) {
+            return repository.findByDataLessThanEqualOrderByDataAscIdAsc(fim);
+        }
+        return repository.findByDataBetweenOrderByDataAscIdAsc(inicio, fim);
     }
 
     private RegistroDiario aplicar(RegistroDiario r, RegistroRequest req) {
