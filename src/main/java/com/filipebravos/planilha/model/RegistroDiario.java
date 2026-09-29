@@ -26,11 +26,11 @@ public class RegistroDiario {
     @Column(nullable = false)
     private LocalDate data;
 
-    @Column(nullable = false)
-    private LocalTime horaInicial;
-
-    @Column(nullable = false)
-    private LocalTime horaFinal;
+    // Horário de cada motorista; nulo quando a pessoa não trabalhou no dia.
+    private LocalTime horaInicialVagner;
+    private LocalTime horaFinalVagner;
+    private LocalTime horaInicialFilipe;
+    private LocalTime horaFinalFilipe;
 
     @Column(nullable = false)
     private int kmInicial;
@@ -53,11 +53,17 @@ public class RegistroDiario {
     public LocalDate getData() { return data; }
     public void setData(LocalDate data) { this.data = data; }
 
-    public LocalTime getHoraInicial() { return horaInicial; }
-    public void setHoraInicial(LocalTime horaInicial) { this.horaInicial = horaInicial; }
+    public LocalTime getHoraInicialVagner() { return horaInicialVagner; }
+    public void setHoraInicialVagner(LocalTime v) { this.horaInicialVagner = v; }
 
-    public LocalTime getHoraFinal() { return horaFinal; }
-    public void setHoraFinal(LocalTime horaFinal) { this.horaFinal = horaFinal; }
+    public LocalTime getHoraFinalVagner() { return horaFinalVagner; }
+    public void setHoraFinalVagner(LocalTime v) { this.horaFinalVagner = v; }
+
+    public LocalTime getHoraInicialFilipe() { return horaInicialFilipe; }
+    public void setHoraInicialFilipe(LocalTime v) { this.horaInicialFilipe = v; }
+
+    public LocalTime getHoraFinalFilipe() { return horaFinalFilipe; }
+    public void setHoraFinalFilipe(LocalTime v) { this.horaFinalFilipe = v; }
 
     public int getKmInicial() { return kmInicial; }
     public void setKmInicial(int kmInicial) { this.kmInicial = kmInicial; }

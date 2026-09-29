@@ -11,13 +11,25 @@ import java.time.LocalTime;
 
 public record RegistroRequest(
         @NotNull LocalDate data,
-        @NotNull LocalTime horaInicial,
-        @NotNull LocalTime horaFinal,
+        LocalTime horaInicialVagner,
+        LocalTime horaFinalVagner,
+        LocalTime horaInicialFilipe,
+        LocalTime horaFinalFilipe,
         @NotNull @Min(0) Integer kmInicial,
         @NotNull @Min(0) Integer kmFinal,
         @NotNull @PositiveOrZero BigDecimal cargaPosto,
         @NotNull @PositiveOrZero BigDecimal valorVagner,
         @NotNull @PositiveOrZero BigDecimal valorFilipe) {
+
+    @AssertTrue(message = "Informe hora inicial e final do Vagner (ou deixe as duas em branco)")
+    public boolean isHorarioVagnerValido() {
+        return (horaInicialVagner == null) == (horaFinalVagner == null);
+    }
+
+    @AssertTrue(message = "Informe hora inicial e final do Filipe (ou deixe as duas em branco)")
+    public boolean isHorarioFilipeValido() {
+        return (horaInicialFilipe == null) == (horaFinalFilipe == null);
+    }
 
     @AssertTrue(message = "Km final não pode ser menor que o Km inicial")
     public boolean isKmValido() {

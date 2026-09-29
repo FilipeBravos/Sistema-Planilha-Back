@@ -53,17 +53,19 @@ public class RegistroService {
 
     private List<RegistroDiario> buscar(LocalDate inicio, LocalDate fim) {
         if (inicio == null && fim == null) {
-            return repository.findAllByOrderByDataAscHoraInicialAsc();
+            return repository.findAllByOrderByDataAscIdAsc();
         }
-        return repository.findByDataBetweenOrderByDataAscHoraInicialAsc(
+        return repository.findByDataBetweenOrderByDataAscIdAsc(
                 inicio != null ? inicio : LocalDate.MIN,
                 fim != null ? fim : LocalDate.MAX);
     }
 
     private RegistroDiario aplicar(RegistroDiario r, RegistroRequest req) {
         r.setData(req.data());
-        r.setHoraInicial(req.horaInicial());
-        r.setHoraFinal(req.horaFinal());
+        r.setHoraInicialVagner(req.horaInicialVagner());
+        r.setHoraFinalVagner(req.horaFinalVagner());
+        r.setHoraInicialFilipe(req.horaInicialFilipe());
+        r.setHoraFinalFilipe(req.horaFinalFilipe());
         r.setKmInicial(req.kmInicial());
         r.setKmFinal(req.kmFinal());
         r.setCargaPosto(req.cargaPosto());

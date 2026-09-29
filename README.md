@@ -18,10 +18,10 @@ Banco H2 em arquivo (`./data`). CORS liberado para `http://localhost:4200` (`app
 | DELETE | `/api/registros/{id}` | Remove linha |
 | GET | `/api/resumo?inicio=&fim=` | Totais de horas e faturamento |
 
-Corpo do POST/PUT: `data, horaInicial, horaFinal, kmInicial, kmFinal, cargaPosto, valorVagner, valorFilipe`.
+Corpo do POST/PUT: `data, horaInicialVagner, horaFinalVagner, horaInicialFilipe, horaFinalFilipe, kmInicial, kmFinal, cargaPosto, valorVagner, valorFilipe`. O horário de cada pessoa é opcional, mas inicial e final devem vir juntos (ou ambos em branco).
 
 ## Cálculos (feitos no backend)
-- Total de horas = hora final − hora inicial (turno que vira a meia-noite é tratado)
+- Total de horas de cada pessoa = hora final − hora inicial (turno que vira a meia-noite é tratado); total do dia = Vagner + Filipe
 - Total de Km = Km final − Km inicial
 - Líquido Vagner = Valor Vagner − Carga Posto; Líquido Filipe = Valor Filipe − Carga Posto
-- Horas individuais: como a planilha tem uma única faixa de horário por dia, as horas do dia contam para quem tem valor > 0 naquele dia; o total conjunto conta cada dia uma vez.
+- Resumo: horas do Vagner, do Filipe e dos dois juntos (soma), faturamento bruto e líquido por pessoa e total.

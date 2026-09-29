@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface RegistroDiarioRepository extends JpaRepository<RegistroDiario, Long> {
 
-    List<RegistroDiario> findAllByOrderByDataAscHoraInicialAsc();
+    List<RegistroDiario> findAllByOrderByDataAscIdAsc();
 
-    List<RegistroDiario> findByDataBetweenOrderByDataAscHoraInicialAsc(LocalDate inicio, LocalDate fim);
+    List<RegistroDiario> findByDataBetweenOrderByDataAscIdAsc(LocalDate inicio, LocalDate fim);
 }

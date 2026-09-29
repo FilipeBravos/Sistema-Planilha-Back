@@ -23,7 +23,8 @@ class RegistroApiTest {
 
     private static String json(int kmInicial, int kmFinal) {
         return """
-                {"data":"2026-09-28","horaInicial":"08:00","horaFinal":"12:30",
+                {"data":"2026-09-28","horaInicialVagner":"08:00","horaFinalVagner":"12:30",
+                 "horaInicialFilipe":"13:00","horaFinalFilipe":"14:00",
                  "kmInicial":%d,"kmFinal":%d,"cargaPosto":50,"valorVagner":200,"valorFilipe":120}
                 """.formatted(kmInicial, kmFinal);
     }
@@ -33,7 +34,9 @@ class RegistroApiTest {
         mvc.perform(post("/api/registros").contentType(MediaType.APPLICATION_JSON).content(json(1000, 1100)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.diaSemana").value("Segunda-feira"))
-                .andExpect(jsonPath("$.totalMinutos").value(270))
+                .andExpect(jsonPath("$.totalMinutosVagner").value(270))
+                .andExpect(jsonPath("$.totalMinutosFilipe").value(60))
+                .andExpect(jsonPath("$.totalMinutos").value(330))
                 .andExpect(jsonPath("$.totalKm").value(100))
                 .andExpect(jsonPath("$.liquidoVagner").value(150.0))
                 .andExpect(jsonPath("$.liquidoFilipe").value(70.0));
@@ -41,6 +44,16 @@ class RegistroApiTest {
         mvc.perform(get("/api/resumo"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.brutoTotal").value(320.0));
+    }
+
+    @Test
+    void rejeitaHorarioIncompleto() throws Exception {
+        String corpo = """
+                {"data":"2026-09-28","horaInicialVagner":"08:00","kmInicial":0,"kmFinal":1,
+                 "cargaPosto":0,"valorVagner":0,"valorFilipe":0}
+                """;
+        mvc.perform(post("/api/registros").contentType(MediaType.APPLICATION_JSON).content(corpo))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

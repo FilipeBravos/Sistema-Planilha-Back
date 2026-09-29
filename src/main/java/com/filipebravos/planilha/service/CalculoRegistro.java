@@ -6,6 +6,7 @@ import com.filipebravos.planilha.model.RegistroDiario;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.LocalTime;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
@@ -21,9 +22,25 @@ public final class CalculoRegistro {
     }
 
     /** Hora final - hora inicial; se a final for menor, o turno virou a meia-noite. */
-    public static long totalMinutos(RegistroDiario r) {
-        long minutos = Duration.between(r.getHoraInicial(), r.getHoraFinal()).toMinutes();
+    public static long minutos(LocalTime inicial, LocalTime fim) {
+        if (inicial == null || fim == null) {
+            return 0;
+        }
+        long minutos = Duration.between(inicial, fim).toMinutes();
         return minutos < 0 ? minutos + 24 * 60 : minutos;
+    }
+
+    public static long totalMinutosVagner(RegistroDiario r) {
+        return minutos(r.getHoraInicialVagner(), r.getHoraFinalVagner());
+    }
+
+    public static long totalMinutosFilipe(RegistroDiario r) {
+        return minutos(r.getHoraInicialFilipe(), r.getHoraFinalFilipe());
+    }
+
+    /** Horas dos dois somadas. */
+    public static long totalMinutos(RegistroDiario r) {
+        return totalMinutosVagner(r) + totalMinutosFilipe(r);
     }
 
     public static int totalKm(RegistroDiario r) {
@@ -46,19 +63,16 @@ public final class CalculoRegistro {
     public static RegistroResponse toResponse(RegistroDiario r) {
         return new RegistroResponse(
                 r.getId(), r.getData(), diaSemana(r),
-                r.getHoraInicial(), r.getHoraFinal(), totalMinutos(r),
+                r.getHoraInicialVagner(), r.getHoraFinalVagner(), totalMinutosVagner(r),
+                r.getHoraInicialFilipe(), r.getHoraFinalFilipe(), totalMinutosFilipe(r),
+                totalMinutos(r),
                 r.getKmInicial(), r.getKmFinal(), totalKm(r),
                 r.getCargaPosto(), r.getValorVagner(), r.getValorFilipe(),
                 liquidoVagner(r), liquidoFilipe(r));
     }
 
-    /**
-     * Horas individuais: a planilha tem uma única faixa de horário por dia, então as
-     * horas do dia são atribuídas a quem teve valor lançado (> 0) naquele dia. O total
-     * conjunto conta cada dia uma só vez.
-     */
+    /** Totais do topo da planilha. */
     public static ResumoResponse resumir(List<RegistroDiario> registros) {
-        long minTotal = 0;
         long minVagner = 0;
         long minFilipe = 0;
         int km = 0;
@@ -68,14 +82,8 @@ public final class CalculoRegistro {
         BigDecimal liqFilipe = BigDecimal.ZERO;
 
         for (RegistroDiario r : registros) {
-            long minutos = totalMinutos(r);
-            minTotal += minutos;
-            if (r.getValorVagner().signum() > 0) {
-                minVagner += minutos;
-            }
-            if (r.getValorFilipe().signum() > 0) {
-                minFilipe += minutos;
-            }
+            minVagner += totalMinutosVagner(r);
+            minFilipe += totalMinutosFilipe(r);
             km += totalKm(r);
             brutoVagner = brutoVagner.add(r.getValorVagner());
             brutoFilipe = brutoFilipe.add(r.getValorFilipe());
@@ -84,7 +92,7 @@ public final class CalculoRegistro {
         }
 
         return new ResumoResponse(
-                minTotal, minVagner, minFilipe,
+                minVagner + minFilipe, minVagner, minFilipe,
                 brutoVagner, brutoFilipe, brutoVagner.add(brutoFilipe),
                 liqVagner, liqFilipe, liqVagner.add(liqFilipe),
                 km);
