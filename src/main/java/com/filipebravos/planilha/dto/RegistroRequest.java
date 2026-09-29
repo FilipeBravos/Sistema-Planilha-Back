@@ -17,7 +17,8 @@ public record RegistroRequest(
         LocalTime horaFinalFilipe,
         @NotNull @Min(0) Integer kmInicial,
         @NotNull @Min(0) Integer kmFinal,
-        @NotNull @PositiveOrZero BigDecimal cargaPosto,
+        @NotNull @PositiveOrZero BigDecimal cargaPostoVagner,
+        @NotNull @PositiveOrZero BigDecimal cargaPostoFilipe,
         @NotNull @PositiveOrZero BigDecimal valorVagner,
         @NotNull @PositiveOrZero BigDecimal valorFilipe) {
 

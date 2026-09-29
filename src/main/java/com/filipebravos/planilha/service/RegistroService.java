@@ -68,7 +68,8 @@ public class RegistroService {
         r.setHoraFinalFilipe(req.horaFinalFilipe());
         r.setKmInicial(req.kmInicial());
         r.setKmFinal(req.kmFinal());
-        r.setCargaPosto(req.cargaPosto());
+        r.setCargaPostoVagner(req.cargaPostoVagner());
+        r.setCargaPostoFilipe(req.cargaPostoFilipe());
         r.setValorVagner(req.valorVagner());
         r.setValorFilipe(req.valorFilipe());
         return r;

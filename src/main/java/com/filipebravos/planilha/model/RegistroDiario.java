@@ -39,7 +39,10 @@ public class RegistroDiario {
     private int kmFinal;
 
     @Column(nullable = false, precision = 12, scale = 2)
-    private BigDecimal cargaPosto = BigDecimal.ZERO;
+    private BigDecimal cargaPostoVagner = BigDecimal.ZERO;
+
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal cargaPostoFilipe = BigDecimal.ZERO;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal valorVagner = BigDecimal.ZERO;
@@ -71,8 +74,11 @@ public class RegistroDiario {
     public int getKmFinal() { return kmFinal; }
     public void setKmFinal(int kmFinal) { this.kmFinal = kmFinal; }
 
-    public BigDecimal getCargaPosto() { return cargaPosto; }
-    public void setCargaPosto(BigDecimal cargaPosto) { this.cargaPosto = cargaPosto; }
+    public BigDecimal getCargaPostoVagner() { return cargaPostoVagner; }
+    public void setCargaPostoVagner(BigDecimal v) { this.cargaPostoVagner = v; }
+
+    public BigDecimal getCargaPostoFilipe() { return cargaPostoFilipe; }
+    public void setCargaPostoFilipe(BigDecimal v) { this.cargaPostoFilipe = v; }
 
     public BigDecimal getValorVagner() { return valorVagner; }
     public void setValorVagner(BigDecimal valorVagner) { this.valorVagner = valorVagner; }

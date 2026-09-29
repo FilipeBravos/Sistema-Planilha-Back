@@ -47,18 +47,14 @@ public final class CalculoRegistro {
         return r.getKmFinal() - r.getKmInicial();
     }
 
-    /** Valor Vagner - Carga Posto; sem horário no dia, a carga do posto não é atribuída a ele. */
+    /** Valor Vagner - Carga Posto do Vagner. */
     public static BigDecimal liquidoVagner(RegistroDiario r) {
-        return liquido(r.getValorVagner(), r.getHoraInicialVagner(), r);
+        return r.getValorVagner().subtract(r.getCargaPostoVagner());
     }
 
-    /** Valor Filipe - Carga Posto; sem horário no dia, a carga do posto não é atribuída a ele. */
+    /** Valor Filipe - Carga Posto do Filipe. */
     public static BigDecimal liquidoFilipe(RegistroDiario r) {
-        return liquido(r.getValorFilipe(), r.getHoraInicialFilipe(), r);
-    }
-
-    private static BigDecimal liquido(BigDecimal valor, LocalTime horaInicial, RegistroDiario r) {
-        return horaInicial == null ? valor : valor.subtract(r.getCargaPosto());
+        return r.getValorFilipe().subtract(r.getCargaPostoFilipe());
     }
 
     public static String diaSemana(RegistroDiario r) {
@@ -73,7 +69,7 @@ public final class CalculoRegistro {
                 r.getHoraInicialFilipe(), r.getHoraFinalFilipe(), totalMinutosFilipe(r),
                 totalMinutos(r),
                 r.getKmInicial(), r.getKmFinal(), totalKm(r),
-                r.getCargaPosto(), r.getValorVagner(), r.getValorFilipe(),
+                r.getCargaPostoVagner(), r.getCargaPostoFilipe(), r.getValorVagner(), r.getValorFilipe(),
                 liquidoVagner(r), liquidoFilipe(r));
     }
 
