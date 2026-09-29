@@ -80,6 +80,8 @@ public final class CalculoRegistro {
         int km = 0;
         BigDecimal brutoVagner = BigDecimal.ZERO;
         BigDecimal brutoFilipe = BigDecimal.ZERO;
+        BigDecimal postoVagner = BigDecimal.ZERO;
+        BigDecimal postoFilipe = BigDecimal.ZERO;
         BigDecimal liqVagner = BigDecimal.ZERO;
         BigDecimal liqFilipe = BigDecimal.ZERO;
 
@@ -89,6 +91,8 @@ public final class CalculoRegistro {
             km += totalKm(r);
             brutoVagner = brutoVagner.add(r.getValorVagner());
             brutoFilipe = brutoFilipe.add(r.getValorFilipe());
+            postoVagner = postoVagner.add(r.getCargaPostoVagner());
+            postoFilipe = postoFilipe.add(r.getCargaPostoFilipe());
             liqVagner = liqVagner.add(liquidoVagner(r));
             liqFilipe = liqFilipe.add(liquidoFilipe(r));
         }
@@ -96,6 +100,7 @@ public final class CalculoRegistro {
         return new ResumoResponse(
                 minVagner + minFilipe, minVagner, minFilipe,
                 brutoVagner, brutoFilipe, brutoVagner.add(brutoFilipe),
+                postoVagner, postoFilipe,
                 liqVagner, liqFilipe, liqVagner.add(liqFilipe),
                 km);
     }

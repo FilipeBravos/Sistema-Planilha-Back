@@ -71,6 +71,8 @@ class CalculoRegistroTest {
         assertEquals(new BigDecimal("590"), s.brutoTotal());
         assertEquals(new BigDecimal("330"), s.liquidoVagner());
         assertEquals(new BigDecimal("175"), s.liquidoFilipe());
+        assertEquals(new BigDecimal("50"), s.cargaPostoVagner());
+        assertEquals(new BigDecimal("35"), s.cargaPostoFilipe());
         assertEquals(170, s.kmTotal());
     }
 }

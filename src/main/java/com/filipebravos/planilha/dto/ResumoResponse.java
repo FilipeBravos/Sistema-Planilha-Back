@@ -12,6 +12,8 @@ public record ResumoResponse(
         BigDecimal brutoVagner,
         BigDecimal brutoFilipe,
         BigDecimal brutoTotal,
+        BigDecimal cargaPostoVagner,
+        BigDecimal cargaPostoFilipe,
         BigDecimal liquidoVagner,
         BigDecimal liquidoFilipe,
         BigDecimal liquidoTotal,
