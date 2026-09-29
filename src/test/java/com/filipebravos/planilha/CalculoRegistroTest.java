@@ -48,6 +48,13 @@ class CalculoRegistroTest {
     }
 
     @Test
+    void quemNaoTrabalhouNaoPagaCargaDoPosto() {
+        RegistroDiario r = registro("2026-09-29", null, null, "09:00", "11:00", 0, 70, "30", "0", "150");
+        assertEquals(new BigDecimal("0"), CalculoRegistro.liquidoVagner(r));
+        assertEquals(new BigDecimal("120"), CalculoRegistro.liquidoFilipe(r));
+    }
+
+    @Test
     void turnoQueViraMeiaNoiteEPessoaSemHorario() {
         RegistroDiario r = registro("2026-09-28", "22:00", "02:30", null, null, 0, 10, "0", "0", "0");
         assertEquals(270, CalculoRegistro.totalMinutosVagner(r));
@@ -68,8 +75,8 @@ class CalculoRegistroTest {
         assertEquals(new BigDecimal("380"), s.brutoVagner());
         assertEquals(new BigDecimal("210"), s.brutoFilipe());
         assertEquals(new BigDecimal("590"), s.brutoTotal());
-        assertEquals(new BigDecimal("310"), s.liquidoVagner());
-        assertEquals(new BigDecimal("140"), s.liquidoFilipe());
+        assertEquals(new BigDecimal("330"), s.liquidoVagner());
+        assertEquals(new BigDecimal("180"), s.liquidoFilipe());
         assertEquals(170, s.kmTotal());
     }
 }

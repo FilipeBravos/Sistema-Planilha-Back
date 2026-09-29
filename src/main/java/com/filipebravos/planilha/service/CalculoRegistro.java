@@ -47,12 +47,18 @@ public final class CalculoRegistro {
         return r.getKmFinal() - r.getKmInicial();
     }
 
+    /** Valor Vagner - Carga Posto; sem horário no dia, a carga do posto não é atribuída a ele. */
     public static BigDecimal liquidoVagner(RegistroDiario r) {
-        return r.getValorVagner().subtract(r.getCargaPosto());
+        return liquido(r.getValorVagner(), r.getHoraInicialVagner(), r);
     }
 
+    /** Valor Filipe - Carga Posto; sem horário no dia, a carga do posto não é atribuída a ele. */
     public static BigDecimal liquidoFilipe(RegistroDiario r) {
-        return r.getValorFilipe().subtract(r.getCargaPosto());
+        return liquido(r.getValorFilipe(), r.getHoraInicialFilipe(), r);
+    }
+
+    private static BigDecimal liquido(BigDecimal valor, LocalTime horaInicial, RegistroDiario r) {
+        return horaInicial == null ? valor : valor.subtract(r.getCargaPosto());
     }
 
     public static String diaSemana(RegistroDiario r) {
