@@ -20,13 +20,13 @@ if grep -q "troque" .env.local; then
   echo "O .env.local ainda tem senhas de exemplo ('troque...'). Edite-o e rode de novo." >&2; exit 1
 fi
 
+source local/_comum.sh
 docker compose -f docker-compose.local.yml --env-file .env.local up -d
-
-PORTA=$(grep -E '^PORTA=' .env.local | cut -d= -f2 | tr -d '[:space:]'); PORTA=${PORTA:-8080}
 echo -n "Aguardando o sistema iniciar"
 for _ in $(seq 1 60); do
   if curl -fs "http://localhost:$PORTA/api/saude" >/dev/null 2>&1; then
     echo; echo "Pronto! Abra: http://localhost:$PORTA"
+    [ "$ACESSO_REDE_ATIVO" = 1 ] && mostrar_enderecos
     (xdg-open "http://localhost:$PORTA" || open "http://localhost:$PORTA") >/dev/null 2>&1 || true
     exit 0
   fi

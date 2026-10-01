@@ -7,6 +7,7 @@ cd ..\Sistema-Planilha-Front
 git pull
 if errorlevel 1 goto erro
 cd ..\Sistema-Planilha-Back
+call local\_rede.bat
 docker compose -f docker-compose.local.yml --env-file .env.local up -d --build
 if errorlevel 1 goto erro
 echo Atualizado. Abra o sistema de novo no navegador.

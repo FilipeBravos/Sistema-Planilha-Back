@@ -52,8 +52,25 @@ Os dados ficam no banco PostgreSQL, dentro de um "volume" do Docker, que sobrevi
 - **"Muitas tentativas":** o login bloqueia por 15 minutos depois de 5 senhas erradas seguidas.
 - **Ver o que está acontecendo:** `docker compose -f docker-compose.local.yml --env-file .env.local logs backend`
 
-## Acessar de outro aparelho (celular, outro PC)
-Por padrão **não**, de propósito. Se quiser acessar de dentro da sua casa, edite `docker-compose.local.yml` e troque a linha `"127.0.0.1:${PORTA:-8080}:80"` por `"${PORTA:-8080}:80"`, libere a porta no firewall do computador e use `http://IP-DO-COMPUTADOR:8080`. Atenção: dentro da rede é HTTP sem criptografia; faça isso só em uma rede de confiança.
+## Usar em dois computadores (ou celular) na mesma rede Wi-Fi
+Rode o sistema em **um computador só** (o "principal") e abra o endereço dele nos outros. Assim todos usam o **mesmo banco de dados**. Não rode o sistema em cada computador: cada um teria seus próprios dados.
+
+1. **No computador principal**, abra o arquivo `.env.local` e mude `ACESSO_REDE=nao` para `ACESSO_REDE=sim` (escreva exatamente assim, sem espaços). Rode o `iniciar` de novo.
+2. O `iniciar` mostra o endereço para usar nos outros aparelhos, algo como `http://192.168.0.15:8080`. (Se precisar descobrir sozinho: no Windows, `ipconfig`, linha "Endereço IPv4" da rede Wi-Fi; no Mac, `ipconfig getifaddr en0`; no Linux, `hostname -I`.)
+3. **Firewall:** o Windows pode perguntar se permite o Docker receber conexões. Permita em rede **Privada**. Se o outro aparelho não conseguir abrir, libere a porta 8080 no Firewall do Windows.
+4. **No outro computador**, abra esse endereço no navegador e entre com o seu login. Pronto.
+
+Para voltar a deixar o sistema só neste computador, mude para `ACESSO_REDE=nao` e rode o `iniciar` de novo.
+
+**Atualização automática:** a tela se atualiza sozinha a cada 15 segundos (enquanto a aba está aberta e visível), então o que um computador lança aparece no outro em segundos, sem apertar F5. No topo há "↻ Atualizado às HH:MM:SS"; clique ali para atualizar na hora.
+
+**Cuidados**
+- **O principal precisa estar ligado**, com o Docker aberto; se ele desligar, os outros perdem o acesso (os dados não se perdem).
+- **IP fixo:** o IP do principal pode mudar quando o roteador reinicia. Reserve um IP fixo para ele nas configurações do roteador ("reserva de DHCP"), para o endereço não mudar.
+- **Segurança:** dentro da rede a conexão é HTTP, sem criptografia, e qualquer aparelho conectado ao seu Wi-Fi consegue abrir a tela de login (só o login protege os dados, com bloqueio após 5 senhas erradas). Use senha forte no Wi-Fi e senhas longas no sistema.
+- **Edição ao mesmo tempo:** se duas pessoas editarem o mesmo lançamento ao mesmo tempo, vale o último que salvar.
+- **Backup:** faça no computador principal.
+
 Para acessar de qualquer lugar pela internet, veja o [DEPLOY.md](DEPLOY.md).
 
 > Observação: os scripts de Mac/Linux (`.sh`) foram testados. Os de Windows (`.bat`) seguem o mesmo roteiro, mas não pude executá-los em um Windows; se algum falhar, mande a mensagem de erro.
