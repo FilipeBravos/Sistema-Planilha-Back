@@ -20,8 +20,8 @@ CORS liberado para `http://localhost:4200` (variável `CORS_ORIGINS`).
 | PUT | `/api/registros/{id}` | Atualiza linha |
 | DELETE | `/api/registros/{id}` | Remove linha |
 | GET | `/api/resumo?inicio=&fim=` | Totais de horas e faturamento |
-| GET | `/api/despesas?categoria=&inicio=&fim=` | Despesas (filtros opcionais) |
-| GET | `/api/despesas/resumo?inicio=&fim=` | Total de despesas e total por categoria |
+| GET | `/api/despesas?categoria=&inicio=&fim=` | Vencimentos de despesas no período (filtros opcionais) |
+| GET | `/api/despesas/resumo?inicio=&fim=` | Total a vencer no período e total por categoria |
 | POST / PUT | `/api/despesas`, `/api/despesas/{id}` | Cria / atualiza despesa |
 | DELETE | `/api/despesas/{id}` | Remove despesa |
 
@@ -39,3 +39,10 @@ Corpo do POST/PUT: `categoria, nome, data, valor, formaPagamento, parcelas`.
 - `formaPagamento`: `DINHEIRO`, `CARTAO`, `CHEQUE`, `BOLETO`
 - `parcelas` (1 a 60) é obrigatório no `CARTAO` e ignorado nas outras formas. `valor` é o total; a resposta traz `valorParcela` (valor ÷ parcelas) para cartão.
 - `nome` é texto livre (o front sugere os nomes de cada categoria).
+
+### Vencimentos (parcelas por mês)
+`GET /api/despesas` e `/api/despesas/resumo` trabalham com **vencimentos**, não com a data da compra:
+- Fora do cartão há um vencimento só, na data da compra.
+- No cartão há um vencimento por parcela: a 1ª na data da compra e as demais nos meses seguintes, no mesmo dia (ou no último dia do mês, se o dia não existir).
+- O valor das parcelas é `valor ÷ parcelas` arredondado; a última parcela absorve a diferença, então a soma é sempre o valor total.
+- Cada item traz `despesaId`, `dataCompra`, `valorTotal`, `parcelas`, `numeroParcela`, `vencimento` e `valor` (o que vence naquela data). Edição e exclusão (`PUT`/`DELETE /api/despesas/{id}`) usam o `despesaId`.

@@ -28,7 +28,7 @@ public class DespesaController {
     }
 
     @GetMapping
-    public List<DespesaResponse> listar(
+    public List<VencimentoResponse> listar(
             @RequestParam(required = false) CategoriaDespesa categoria,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) {

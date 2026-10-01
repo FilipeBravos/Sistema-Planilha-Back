@@ -55,6 +55,31 @@ class DespesaApiTest {
     }
 
     @Test
+    void compraParceladaVenceEmVariosMeses() throws Exception {
+        criar(json("CARRO", "PNEUS", "2026-10-15", "900.00", "CARTAO", "3"));
+        criar(json("CARRO", "GASOLINA", "2026-11-03", "100", "DINHEIRO", "null"));
+
+        mvc.perform(get("/api/despesas").param("inicio", "2026-11-01").param("fim", "2026-11-30"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].vencimento").value("2026-11-03"))
+                .andExpect(jsonPath("$[1].nome").value("PNEUS"))
+                .andExpect(jsonPath("$[1].numeroParcela").value(2))
+                .andExpect(jsonPath("$[1].valor").value(300.0))
+                .andExpect(jsonPath("$[1].valorTotal").value(900.0))
+                .andExpect(jsonPath("$[1].dataCompra").value("2026-10-15"));
+
+        mvc.perform(get("/api/despesas/resumo").param("inicio", "2026-11-01").param("fim", "2026-11-30"))
+                .andExpect(jsonPath("$.total").value(400.0));
+        mvc.perform(get("/api/despesas/resumo").param("inicio", "2026-10-01").param("fim", "2026-10-31"))
+                .andExpect(jsonPath("$.total").value(300.0));
+        mvc.perform(get("/api/despesas/resumo").param("inicio", "2027-01-01").param("fim", "2027-01-31"))
+                .andExpect(jsonPath("$.total").value(0));
+        mvc.perform(get("/api/despesas/resumo"))
+                .andExpect(jsonPath("$.total").value(1000.0));
+    }
+
+    @Test
     void parcelasSaoIgnoradasForaDoCartao() throws Exception {
         mvc.perform(post("/api/despesas").contentType(MediaType.APPLICATION_JSON)
                         .content(json("MOTO", "SEGURO", "2026-09-10", "200", "BOLETO", "5")))

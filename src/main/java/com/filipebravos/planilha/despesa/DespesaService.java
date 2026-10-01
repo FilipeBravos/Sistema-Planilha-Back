@@ -1,7 +1,6 @@
 package com.filipebravos.planilha.despesa;
 
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,6 +12,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -20,26 +20,29 @@ import java.util.Map;
 @Service
 public class DespesaService {
 
+    static final int MAX_PARCELAS = 60;
+
     private final DespesaRepository repository;
 
     public DespesaService(DespesaRepository repository) {
         this.repository = repository;
     }
 
+    /** Vencimentos que caem no período (compras parceladas podem aparecer em vários meses). */
     @Transactional(readOnly = true)
-    public List<DespesaResponse> listar(CategoriaDespesa categoria, LocalDate inicio, LocalDate fim) {
-        return buscar(categoria, inicio, fim).stream().map(DespesaService::toResponse).toList();
+    public List<VencimentoResponse> listar(CategoriaDespesa categoria, LocalDate inicio, LocalDate fim) {
+        return buscar(categoria, inicio, fim);
     }
 
-    /** O resumo ignora o filtro de categoria: mostra todas, para comparação. */
+    /** Total e total por categoria dos vencimentos do período; ignora filtro de categoria. */
     @Transactional(readOnly = true)
     public DespesaResumoResponse resumo(LocalDate inicio, LocalDate fim) {
         Map<CategoriaDespesa, BigDecimal> totais = new EnumMap<>(CategoriaDespesa.class);
         Arrays.stream(CategoriaDespesa.values()).forEach(c -> totais.put(c, BigDecimal.ZERO));
         BigDecimal total = BigDecimal.ZERO;
-        for (Despesa d : buscar(null, inicio, fim)) {
-            totais.merge(d.getCategoria(), d.getValor(), BigDecimal::add);
-            total = total.add(d.getValor());
+        for (VencimentoResponse v : buscar(null, inicio, fim)) {
+            totais.merge(v.categoria(), v.valor(), BigDecimal::add);
+            total = total.add(v.valor());
         }
         List<DespesaResumoResponse.TotalCategoria> porCategoria = totais.entrySet().stream()
                 .map(e -> new DespesaResumoResponse.TotalCategoria(e.getKey(), e.getValue()))
@@ -79,21 +82,30 @@ public class DespesaService {
                 d.getFormaPagamento(), d.getParcelas(), valorParcela(d));
     }
 
-    private List<Despesa> buscar(CategoriaDespesa categoria, LocalDate inicio, LocalDate fim) {
+    private List<VencimentoResponse> buscar(CategoriaDespesa categoria, LocalDate inicio, LocalDate fim) {
+        // Uma compra com a 1ª parcela até MAX_PARCELAS - 1 meses antes do início ainda pode vencer dentro do período.
+        LocalDate compraMinima = inicio == null ? null : inicio.minusMonths(MAX_PARCELAS - 1L);
         Specification<Despesa> filtro = (root, query, cb) -> {
             List<Predicate> condicoes = new ArrayList<>();
             if (categoria != null) {
                 condicoes.add(cb.equal(root.get("categoria"), categoria));
             }
-            if (inicio != null) {
-                condicoes.add(cb.greaterThanOrEqualTo(root.get("data"), inicio));
+            if (compraMinima != null) {
+                condicoes.add(cb.greaterThanOrEqualTo(root.get("data"), compraMinima));
             }
             if (fim != null) {
                 condicoes.add(cb.lessThanOrEqualTo(root.get("data"), fim));
             }
             return cb.and(condicoes.toArray(new Predicate[0]));
         };
-        return repository.findAll(filtro, Sort.by("data", "id"));
+        return repository.findAll(filtro).stream()
+                .flatMap(d -> Vencimentos.de(d).stream())
+                .filter(v -> (inicio == null || !v.vencimento().isBefore(inicio))
+                        && (fim == null || !v.vencimento().isAfter(fim)))
+                .sorted(Comparator.comparing(VencimentoResponse::vencimento)
+                        .thenComparing(VencimentoResponse::despesaId)
+                        .thenComparing(v -> v.numeroParcela() == null ? 0 : v.numeroParcela()))
+                .toList();
     }
 
     private Despesa aplicar(Despesa d, DespesaRequest req) {
