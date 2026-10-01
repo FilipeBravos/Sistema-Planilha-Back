@@ -1,0 +1,45 @@
+# Uso na SUA máquina (só você acessa): PostgreSQL + backend + site em http://localhost:8080
+# Espera os dois repositórios lado a lado (Sistema-Planilha-Back e Sistema-Planilha-Front).
+# Use pelos scripts da pasta local/ (iniciar, parar, backup, atualizar), veja LOCAL.md.
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: planilha
+      POSTGRES_USER: planilha
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env.local}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U planilha -d planilha"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/planilha
+      DB_USER: planilha
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      APP_USUARIOS_INICIAIS: ${APP_USUARIOS_INICIAIS:-}
+      COOKIE_SEGURO: "false"   # http://localhost não usa HTTPS
+
+  web:
+    build: ../Sistema-Planilha-Front
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      SITE_ADDRESS: ":80"
+    ports:
+      # 127.0.0.1: só este computador acessa (outros aparelhos da rede não)
+      - "127.0.0.1:${PORTA:-8080}:80"
+
+volumes:
+  pgdata:
