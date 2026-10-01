@@ -20,6 +20,10 @@ CORS liberado para `http://localhost:4200` (variável `CORS_ORIGINS`).
 | PUT | `/api/registros/{id}` | Atualiza linha |
 | DELETE | `/api/registros/{id}` | Remove linha |
 | GET | `/api/resumo?inicio=&fim=` | Totais de horas e faturamento |
+| GET | `/api/despesas?categoria=&inicio=&fim=` | Despesas (filtros opcionais) |
+| GET | `/api/despesas/resumo?inicio=&fim=` | Total de despesas e total por categoria |
+| POST / PUT | `/api/despesas`, `/api/despesas/{id}` | Cria / atualiza despesa |
+| DELETE | `/api/despesas/{id}` | Remove despesa |
 
 Corpo do POST/PUT: `data, horaInicialVagner, horaFinalVagner, horaInicialFilipe, horaFinalFilipe, kmInicial, kmFinal, cargaPostoVagner, cargaPostoFilipe, valorVagner, valorFilipe`. O horário de cada pessoa é opcional, mas inicial e final devem vir juntos (ou ambos em branco).
 
@@ -28,3 +32,10 @@ Corpo do POST/PUT: `data, horaInicialVagner, horaFinalVagner, horaInicialFilipe,
 - Total de Km = Km final − Km inicial
 - Líquido Vagner = Valor Vagner − Carga Posto do Vagner; Líquido Filipe = Valor Filipe − Carga Posto do Filipe (cada um informa a sua carga)
 - Resumo: horas do Vagner, do Filipe e dos dois juntos (soma), faturamento bruto e líquido por pessoa e total.
+
+## Despesas
+Corpo do POST/PUT: `categoria, nome, data, valor, formaPagamento, parcelas`.
+- `categoria`: `CARRO`, `ENERGIA_ELETRICA`, `MOTO`, `PLANO_DE_SAUDE`, `FARMACIA`, `LORD_E_AMORA`, `FILIPE`, `VAGNER`, `ROMILDA`, `INTERNET_E_TELEFONE`
+- `formaPagamento`: `DINHEIRO`, `CARTAO`, `CHEQUE`, `BOLETO`
+- `parcelas` (1 a 60) é obrigatório no `CARTAO` e ignorado nas outras formas. `valor` é o total; a resposta traz `valorParcela` (valor ÷ parcelas) para cartão.
+- `nome` é texto livre (o front sugere os nomes de cada categoria).
