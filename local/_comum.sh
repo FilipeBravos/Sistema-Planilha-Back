@@ -3,9 +3,35 @@
 ler_env() { grep -E "^$1=" .env.local | tail -1 | cut -d= -f2- | tr -d '[:space:]'; }
 
 PORTA=$(ler_env PORTA); PORTA=${PORTA:-8080}
+COMPOSE_ARGS=(-f docker-compose.local.yml)
+export ENDERECO_REDE=127.0.0.1
+ACESSO_REDE_ATIVO=0   # 0 = só este computador, 1 = rede local (Wi-Fi), 2 = só pelo Tailscale
+
+# ACESSO_REDE=tailscale: descobre o endereço Tailscale (100.x.y.z) deste computador e publica a porta só nele.
+# Se o Tailscale não estiver instalado/conectado, PARA em vez de abrir o sistema para outras redes.
+descobrir_tailscale() {
+  local cli
+  cli=$(command -v tailscale || true)
+  if [ -z "$cli" ] && [ -x /Applications/Tailscale.app/Contents/MacOS/Tailscale ]; then
+    cli=/Applications/Tailscale.app/Contents/MacOS/Tailscale
+  fi
+  if [ -z "$cli" ]; then
+    echo "ACESSO_REDE=tailscale, mas não encontrei o Tailscale. Instale (https://tailscale.com/download), entre na sua conta e rode de novo." >&2
+    exit 1
+  fi
+  TAILSCALE_IP=$("$cli" ip -4 2>/dev/null | head -1 | tr -d '[:space:]' || true)
+  case "$TAILSCALE_IP" in
+    100.*) ;;
+    *) echo "O Tailscale está instalado, mas não consegui o endereço dele. Abra o Tailscale, conecte-se e rode de novo." >&2; exit 1 ;;
+  esac
+  export ENDERECO_TAILSCALE="$TAILSCALE_IP"
+  COMPOSE_ARGS=(-f docker-compose.local.yml -f docker-compose.tailscale.yml)
+  ACESSO_REDE_ATIVO=2
+}
+
 case "$(ler_env ACESSO_REDE | tr '[:upper:]' '[:lower:]')" in
   sim|s|true|yes|1) export ENDERECO_REDE=0.0.0.0; ACESSO_REDE_ATIVO=1 ;;
-  *)                export ENDERECO_REDE=127.0.0.1; ACESSO_REDE_ATIVO=0 ;;
+  tailscale|ts)     descobrir_tailscale ;;
 esac
 
 # Mostra o endereço para abrir nos outros aparelhos (prefere os de redes domésticas: 192.168.x.x e 10.x.x.x).
@@ -27,4 +53,11 @@ mostrar_enderecos() {
   fi
   echo "Se não abrir, libere a porta $PORTA no firewall deste computador (veja LOCAL.md)."
   echo "Atenção: qualquer aparelho da sua rede consegue abrir a tela de login (a conexão é HTTP, sem criptografia)."
+}
+
+mostrar_tailscale() {
+  echo "Acesso pelo Tailscale LIGADO (o Wi-Fi/rede local NÃO foi aberto). Para quem recebeu acesso pelo Tailscale, abra:"
+  echo "    http://$TAILSCALE_IP:$PORTA"
+  echo "Neste computador você continua usando http://localhost:$PORTA."
+  echo "O Tailscale precisa estar conectado aqui e na outra pessoa (veja LOCAL.md)."
 }

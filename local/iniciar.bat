@@ -11,7 +11,8 @@ findstr /c:"troque" .env.local >nul
 if not errorlevel 1 goto editaenv
 
 call local\_rede.bat
-docker compose -f docker-compose.local.yml --env-file .env.local up -d
+if "%TS_ERRO%"=="1" goto semtailscale
+docker compose %COMPOSE_ARQ% --env-file .env.local up -d
 if errorlevel 1 goto erro
 
 set /a TENTATIVAS=0
@@ -27,6 +28,7 @@ goto espera
 :pronto
 echo Pronto! Abrindo http://localhost:%PORTA%
 if "%ACESSO_REDE_ATIVO%"=="1" call :mostrarrede
+if "%ACESSO_REDE_ATIVO%"=="2" call :mostrartailscale
 start "" http://localhost:%PORTA%
 pause
 exit /b 0
@@ -41,6 +43,20 @@ echo Atencao: qualquer aparelho da sua rede consegue abrir a tela de login. A co
 echo.
 exit /b 0
 
+:mostrartailscale
+echo.
+echo Acesso pelo Tailscale LIGADO. O Wi-Fi e a rede local NAO foram abertos.
+echo Para quem recebeu acesso pelo Tailscale, abra http://%TS_IP%:%PORTA%
+echo Neste computador voce continua usando http://localhost:%PORTA%
+echo O Tailscale precisa estar conectado aqui e na outra pessoa. Veja LOCAL.md.
+echo.
+exit /b 0
+
+:semtailscale
+echo ACESSO_REDE=tailscale, mas nao encontrei o Tailscale conectado neste computador.
+echo Instale o Tailscale em https://tailscale.com/download, entre na sua conta e rode de novo.
+pause
+exit /b 1
 :semdocker
 echo Docker nao encontrado. Instale o Docker Desktop: https://www.docker.com/products/docker-desktop/
 pause

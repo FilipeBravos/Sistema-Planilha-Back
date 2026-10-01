@@ -21,12 +21,13 @@ if grep -q "troque" .env.local; then
 fi
 
 source local/_comum.sh
-docker compose -f docker-compose.local.yml --env-file .env.local up -d
+docker compose "${COMPOSE_ARGS[@]}" --env-file .env.local up -d
 echo -n "Aguardando o sistema iniciar"
 for _ in $(seq 1 60); do
   if curl -fs "http://localhost:$PORTA/api/saude" >/dev/null 2>&1; then
     echo; echo "Pronto! Abra: http://localhost:$PORTA"
     [ "$ACESSO_REDE_ATIVO" = 1 ] && mostrar_enderecos
+    [ "$ACESSO_REDE_ATIVO" = 2 ] && mostrar_tailscale
     (xdg-open "http://localhost:$PORTA" || open "http://localhost:$PORTA") >/dev/null 2>&1 || true
     exit 0
   fi
