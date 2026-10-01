@@ -28,6 +28,7 @@ CORS liberado para `http://localhost:4200` (variável `CORS_ORIGINS`).
 | GET | `/api/emprestimos/resumo` | Total emprestado, pago e saldo, geral e por credor |
 | POST / PUT | `/api/emprestimos`, `/api/emprestimos/{id}` | Cria / atualiza empréstimo |
 | DELETE | `/api/emprestimos/{id}` | Remove empréstimo |
+| GET | `/api/relatorios/dashboard?inicio=&fim=` | Relatório consolidado por mês (receita, despesas, empréstimos) |
 
 Corpo do POST/PUT: `data, horaInicialVagner, horaFinalVagner, horaInicialFilipe, horaFinalFilipe, kmInicial, kmFinal, cargaPostoVagner, cargaPostoFilipe, valorVagner, valorFilipe`. O horário de cada pessoa é opcional, mas inicial e final devem vir juntos (ou ambos em branco).
 
@@ -56,3 +57,10 @@ Corpo do POST/PUT: `credor, nomeTerceiro, data, valor, parcelas, valorPago`.
 - `credor`: `ROMILDA`, `VERONICA`, `BANCO_DO_BRASIL`, `BANCO_ITAU` ou `TERCEIROS`. Em `TERCEIROS` o `nomeTerceiro` (quem emprestou) é obrigatório; nos demais é ignorado.
 - `parcelas` (1 a 600): em quantas vezes o empréstimo foi dividido. `valorPago`: quanto já foi pago.
 - A resposta traz `valorParcela` (valor ÷ parcelas), `saldo` (valor − pago, nunca negativo) e `quitado` (saldo zerado). O resumo soma os saldos de cada empréstimo, então pagar a mais em um não abate o saldo de outro.
+
+## Relatórios
+`GET /api/relatorios/dashboard?inicio=&fim=` consolida o intervalo em meses completos (padrão: últimos 12 meses; máximo 120). Resposta:
+- `meses[]` e `totais`: `faturamentoBruto`, `cargaPosto`, `faturamentoLiquido` (bruto − carga), `despesas` (o que vence no mês, com parcelas do cartão), `parcelasEmprestimos` e `resultado` (líquido − despesas − parcelas).
+- `despesasPorCategoria[]` e `maioresDespesas[]` (top 10 por nome dentro da categoria), do maior para o menor, com `percentual` do total de despesas.
+- `emprestimos`: situação atual (total emprestado, pago e saldo devedor), independente do intervalo.
+- **Parcelas de empréstimos são previstas**: como o sistema guarda só o total pago (sem datas de pagamento), cada empréstimo gera uma parcela por mês (`valor ÷ parcelas`), a 1ª um mês depois da data do empréstimo; a última absorve o arredondamento.
