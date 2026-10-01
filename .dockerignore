@@ -1,6 +1,6 @@
 target/
+.git/
+data/
 *.iml
 .idea/
-.vscode/
 .env
-backups/

@@ -1,0 +1,52 @@
+# Produção em um servidor só: PostgreSQL + backend + site (Caddy, com HTTPS automático).
+# Espera os dois repositórios lado a lado:
+#   Sistema-Planilha-Back/   (este)
+#   Sistema-Planilha-Front/
+# Uso:  cp .env.example .env  (edite)  &&  docker compose -f docker-compose.prod.yml up -d --build
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: planilha
+      POSTGRES_USER: planilha
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U planilha -d planilha"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/planilha
+      DB_USER: planilha
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      APP_USUARIOS_INICIAIS: ${APP_USUARIOS_INICIAIS:-}
+      COOKIE_SEGURO: ${COOKIE_SEGURO:-true}
+
+  web:
+    build: ../Sistema-Planilha-Front
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

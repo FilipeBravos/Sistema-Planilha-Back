@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -14,8 +14,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@Import(AutenticadoTestConfig.class)
 @AutoConfigureMockMvc
-@TestPropertySource(properties = "spring.datasource.url=jdbc:h2:mem:teste;DB_CLOSE_DELAY=-1")
 class RegistroApiTest {
 
     @Autowired
@@ -44,6 +44,19 @@ class RegistroApiTest {
         mvc.perform(get("/api/resumo"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.brutoTotal").value(320.0));
+    }
+
+    @Test
+    void filtraPorPeriodoComLimitesAbertos() throws Exception {
+        mvc.perform(post("/api/registros").contentType(MediaType.APPLICATION_JSON).content(json(1000, 1100)))
+                .andExpect(status().isCreated());
+
+        mvc.perform(get("/api/registros").param("inicio", "2026-09-28"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].data").value("2026-09-28"));
+        mvc.perform(get("/api/registros").param("fim", "2026-09-28"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].data").value("2026-09-28"));
+        mvc.perform(get("/api/registros").param("inicio", "2026-09-29").param("fim", "2026-10-05"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[?(@.data == '2026-09-28')]").isEmpty());
     }
 
     @Test
