@@ -4,9 +4,10 @@ API (Java 21 + Spring Boot 3 + PostgreSQL) do controle financeiro diário de mot
 
 ## Executar
 ```bash
-mvn spring-boot:run     # http://localhost:8080
+APP_USUARIOS_INICIAIS="filipe:minha-senha-1,vagner:minha-senha-2" mvn spring-boot:run     # http://localhost:8080
 mvn test
 ```
+Sem `APP_USUARIOS_INICIAIS` ninguém consegue entrar (veja Login abaixo). Para colocar o sistema online, veja **[DEPLOY.md](DEPLOY.md)**.
 Banco PostgreSQL. Suba um local com `docker compose up -d` (usa `docker-compose.yml`) ou aponte para o seu
 servidor com as variáveis `DB_URL`, `DB_USER` e `DB_PASSWORD` (padrão: `jdbc:postgresql://localhost:5432/planilha`, usuário/senha `planilha`).
 As tabelas são criadas automaticamente. Os testes usam H2 em memória e não precisam do PostgreSQL.
@@ -64,3 +65,13 @@ Corpo do POST/PUT: `credor, nomeTerceiro, data, valor, parcelas, valorPago`.
 - `despesasPorCategoria[]` e `maioresDespesas[]` (top 10 por nome dentro da categoria), do maior para o menor, com `percentual` do total de despesas.
 - `emprestimos`: situação atual (total emprestado, pago e saldo devedor), independente do intervalo.
 - **Parcelas de empréstimos são previstas**: como o sistema guarda só o total pago (sem datas de pagamento), cada empréstimo gera uma parcela por mês (`valor ÷ parcelas`), a 1ª um mês depois da data do empréstimo; a última absorve o arredondamento.
+
+## Login e segurança
+- Tudo em `/api` exige login, exceto `POST /api/auth/login` e `GET /api/saude` (usado pelo healthcheck).
+- Sessão por cookie `HttpOnly` (`SameSite=Lax`; `Secure` quando `COOKIE_SEGURO=true`) e proteção CSRF (cookie `XSRF-TOKEN` + cabeçalho `X-XSRF-TOKEN`, que o Angular envia sozinho).
+- `POST /api/auth/login` (`usuario`, `senha`), `GET /api/auth/eu`, `POST /api/auth/logout`, `POST /api/auth/senha` (`senhaAtual`, `novaSenha` com 8+ caracteres).
+- Senhas guardadas com BCrypt. Depois de 5 erros seguidos do mesmo IP e usuário, o login é bloqueado por 15 minutos.
+- Os usuários são criados na inicialização a partir de `APP_USUARIOS_INICIAIS` (`login:senha,login2:senha2`), só se ainda não existirem; cada pessoa troca a própria senha pela tela.
+
+## Hospedagem
+`Dockerfile` (backend), `docker-compose.prod.yml` (banco + backend + site com HTTPS), `.env.example` e `scripts/backup.sh`: passo a passo em [DEPLOY.md](DEPLOY.md).
