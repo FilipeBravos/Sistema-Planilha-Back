@@ -4,5 +4,6 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 git pull
 (cd ../Sistema-Planilha-Front && git pull)
+source local/_comum.sh
 docker compose -f docker-compose.local.yml --env-file .env.local up -d --build
 echo "Atualizado. Abra o sistema de novo no navegador."

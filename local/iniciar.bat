@@ -10,11 +10,10 @@ if not exist .env.local goto criaenv
 findstr /c:"troque" .env.local >nul
 if not errorlevel 1 goto editaenv
 
+call local\_rede.bat
 docker compose -f docker-compose.local.yml --env-file .env.local up -d
 if errorlevel 1 goto erro
 
-set PORTA=8080
-for /f "tokens=2 delims==" %%a in ('findstr /b "PORTA=" .env.local') do set PORTA=%%a
 set /a TENTATIVAS=0
 echo Aguardando o sistema iniciar...
 :espera
@@ -27,8 +26,19 @@ goto espera
 
 :pronto
 echo Pronto! Abrindo http://localhost:%PORTA%
+if "%ACESSO_REDE_ATIVO%"=="1" call :mostrarrede
 start "" http://localhost:%PORTA%
 pause
+exit /b 0
+
+:mostrarrede
+echo.
+echo Acesso pela rede LIGADO. Nos outros aparelhos da mesma rede Wi-Fi abra http://IP:%PORTA%
+echo usando o Endereco IPv4 do Wi-Fi deste computador (mostrado abaixo, geralmente 192.168...):
+ipconfig | findstr /c:"IPv4"
+echo Se nao abrir, libere a porta %PORTA% no Firewall do Windows (veja LOCAL.md).
+echo Atencao: qualquer aparelho da sua rede consegue abrir a tela de login. A conexao e HTTP, sem criptografia.
+echo.
 exit /b 0
 
 :semdocker

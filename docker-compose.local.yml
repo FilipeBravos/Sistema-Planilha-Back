@@ -38,8 +38,9 @@ services:
     environment:
       SITE_ADDRESS: ":80"
     ports:
-      # 127.0.0.1: só este computador acessa (outros aparelhos da rede não)
-      - "127.0.0.1:${PORTA:-8080}:80"
+      # ENDERECO_REDE é definido pelos scripts da pasta local/ a partir de ACESSO_REDE no .env.local:
+      # 127.0.0.1 = só este computador acessa (padrão); 0.0.0.0 = outros aparelhos da mesma rede também.
+      - "${ENDERECO_REDE:-127.0.0.1}:${PORTA:-8080}:80"
 
 volumes:
   pgdata:
