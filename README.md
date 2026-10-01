@@ -7,7 +7,7 @@ API (Java 21 + Spring Boot 3 + PostgreSQL) do controle financeiro diário de mot
 APP_USUARIOS_INICIAIS="filipe:minha-senha-1,vagner:minha-senha-2" mvn spring-boot:run     # http://localhost:8080
 mvn test
 ```
-Sem `APP_USUARIOS_INICIAIS` ninguém consegue entrar (veja Login abaixo). Para colocar o sistema online, veja **[DEPLOY.md](DEPLOY.md)**.
+Sem `APP_USUARIOS_INICIAIS` ninguém consegue entrar (veja Login abaixo). Para usar no seu computador sem instalar nada além do Docker, veja **[LOCAL.md](LOCAL.md)**; para colocar o sistema online, veja **[DEPLOY.md](DEPLOY.md)**.
 Banco PostgreSQL. Suba um local com `docker compose up -d` (usa `docker-compose.yml`) ou aponte para o seu
 servidor com as variáveis `DB_URL`, `DB_USER` e `DB_PASSWORD` (padrão: `jdbc:postgresql://localhost:5432/planilha`, usuário/senha `planilha`).
 As tabelas são criadas automaticamente. Os testes usam H2 em memória e não precisam do PostgreSQL.
@@ -73,5 +73,7 @@ Corpo do POST/PUT: `credor, nomeTerceiro, data, valor, parcelas, valorPago`.
 - Senhas guardadas com BCrypt. Depois de 5 erros seguidos do mesmo IP e usuário, o login é bloqueado por 15 minutos.
 - Os usuários são criados na inicialização a partir de `APP_USUARIOS_INICIAIS` (`login:senha,login2:senha2`), só se ainda não existirem; cada pessoa troca a própria senha pela tela.
 
-## Hospedagem
+## Uso local e hospedagem
+`docker-compose.local.yml`, `.env.local.example` e a pasta `local/` (scripts para ligar, desligar, atualizar e fazer backup): veja [LOCAL.md](LOCAL.md).
+
 `Dockerfile` (backend), `docker-compose.prod.yml` (banco + backend + site com HTTPS), `.env.example` e `scripts/backup.sh`: passo a passo em [DEPLOY.md](DEPLOY.md).
