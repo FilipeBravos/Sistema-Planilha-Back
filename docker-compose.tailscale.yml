@@ -1,0 +1,7 @@
+# Usado pelos scripts da pasta local/ quando ACESSO_REDE=tailscale no .env.local.
+# ACRESCENTA a publicação da porta no endereço Tailscale deste computador (100.x.y.z); o acesso por
+# localhost continua existindo e o Wi-Fi/rede local NÃO é aberto.
+services:
+  web:
+    ports:
+      - "${ENDERECO_TAILSCALE:?este arquivo só é usado com ACESSO_REDE=tailscale (pelos scripts de local/)}:${PORTA:-8080}:80"

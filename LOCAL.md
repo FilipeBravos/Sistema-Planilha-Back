@@ -53,6 +53,8 @@ Os dados ficam no banco PostgreSQL, dentro de um "volume" do Docker, que sobrevi
 - **Ver o que está acontecendo:** `docker compose -f docker-compose.local.yml --env-file .env.local logs backend`
 
 ## Usar em dois computadores (ou celular) na mesma rede Wi-Fi
+O `ACESSO_REDE` do `.env.local` tem três valores: `nao` (padrão: só este computador), `sim` (todo o seu Wi-Fi, descrito aqui) e `tailscale` (só quem usar o Tailscale, veja a próxima seção).
+
 Rode o sistema em **um computador só** (o "principal") e abra o endereço dele nos outros. Assim todos usam o **mesmo banco de dados**. Não rode o sistema em cada computador: cada um teria seus próprios dados.
 
 1. **No computador principal**, abra o arquivo `.env.local` e mude `ACESSO_REDE=nao` para `ACESSO_REDE=sim` (escreva exatamente assim, sem espaços). Rode o `iniciar` de novo.
@@ -80,13 +82,14 @@ O sistema continua rodando no **seu** computador, com os mesmos dados de todos. 
 
 ### Parte 1: você, no computador principal
 1. Crie uma conta gratuita no Tailscale (https://login.tailscale.com), instale o aplicativo (https://tailscale.com/download) no computador principal e entre com a sua conta.
-2. No `.env.local`, deixe `ACESSO_REDE=sim` e rode o `iniciar` de novo. Sem isso, o Tailscale não consegue alcançar o sistema. Atenção: isso também libera o acesso aos aparelhos do seu Wi-Fi (veja a seção anterior).
+2. No `.env.local`, mude para `ACESSO_REDE=tailscale` e rode o `iniciar` de novo. Com essa opção o sistema é publicado **só** no `localhost` e no endereço Tailscale do seu computador: quem usar o Tailscale consegue abrir, mas **os aparelhos do seu Wi-Fi e de qualquer outra rede continuam sem acesso**. O `iniciar` mostra o endereço para passar à pessoa. Se o Tailscale não estiver instalado e conectado, o `iniciar` **para** com um aviso, em vez de abrir o sistema para outras redes.
+   (`ACESSO_REDE=sim` também funcionaria, mas abriria o sistema para todo o seu Wi-Fi; só use se você também quiser isso.)
 3. **Crie o login da pessoa.** Ainda no `.env.local`, acrescente o nome dela no fim de `APP_USUARIOS_INICIAIS`:
    ```
    APP_USUARIOS_INICIAIS=filipe:senha-do-filipe1,vagner:senha-do-vagner1,maria:senha-da-maria1
    ```
    Salve e rode o `iniciar` de novo. Isso cria **só** o usuário novo e não mexe nas senhas dos outros. A senha precisa ter 8 ou mais caracteres e não pode ter vírgula. Passe a senha provisória para a pessoa e peça que ela a troque no primeiro acesso ("Alterar senha").
-4. Anote o **endereço Tailscale** do seu computador: no aplicativo do Tailscale, ou na página "Machines" do painel (https://login.tailscale.com/admin/machines). Ele parece com `100.101.102.103`.
+4. Anote o **endereço Tailscale** do seu computador: o próprio `iniciar` mostra, e também aparece no aplicativo do Tailscale ou na página "Machines" do painel (https://login.tailscale.com/admin/machines). Ele parece com `100.101.102.103`.
 5. **Compartilhe o seu computador com a pessoa:** no painel, em "Machines", encontre o seu computador e escolha a opção de **compartilhar** ("Share"). Envie o convite por e-mail ou copie o link e mande para ela. Use o **compartilhamento de uma máquina**, e não o convite de usuário para a sua rede: assim ela enxerga **só o seu computador**, e não o resto da sua rede.
 
 ### Parte 2: a outra pessoa
@@ -97,6 +100,7 @@ O sistema continua rodando no **seu** computador, com os mesmos dados de todos. 
 O navegador pode mostrar "Não seguro", por ser `http`. Isso é esperado: o túnel do Tailscale já criptografa a conexão.
 
 ### Cuidados
+- **Depois de reiniciar o computador:** com `ACESSO_REDE=tailscale`, se o Docker subir o sistema antes de o Tailscale conectar, ele pode não abrir. Se isso acontecer, rode o `iniciar` de novo (ele confere o Tailscale e liga tudo).
 - **O seu computador precisa estar ligado e acordado**, com o Docker Desktop aberto e o Tailscale conectado. Se ele dormir ou desligar, a pessoa perde o acesso (os dados não se perdem). Desative a suspensão automática do computador se ela for usar com frequência.
 - **Todos os usuários veem e alteram tudo** (Uber, despesas, empréstimos e relatórios): ainda não existem perfis de acesso nem "somente leitura".
 - **Para tirar o acesso de alguém:**
@@ -109,10 +113,10 @@ O navegador pode mostrar "Não seguro", por ser `http`. Isso é esperado: o tún
 - **Se a pessoa não conseguir abrir:**
   - Confirme que o Tailscale está conectado nos **dois** computadores e que o convite foi aceito.
   - No Tailscale do **seu** computador, "Permitir conexões de entrada" ("Allow incoming connections") precisa estar ligado.
-  - Confirme que o sistema está de pé no seu computador (`http://localhost:8080` abre) e que `ACESSO_REDE=sim`.
+  - Confirme que o sistema está de pé no seu computador (`http://localhost:8080` abre) e que o `.env.local` está com `ACESSO_REDE=tailscale` (ou `sim`) e você rodou o `iniciar` depois de mudar.
   - No Windows, se o Firewall bloquear, crie uma regra de entrada liberando a porta 8080 para os endereços `100.64.0.0/10` (a faixa de endereços do Tailscale).
 - **Segurança:** mantenha senhas longas e diferentes para cada pessoa, e só compartilhe o computador com quem você conhece.
 
-> Observação: este roteiro segue a documentação do Tailscale e não foi testado com uma conta real. Se algum nome de botão ou tela estiver diferente do atual, a documentação oficial (https://tailscale.com/docs) prevalece.
+> Observação: a publicação só pelo endereço Tailscale foi testada com um endereço simulado (porta aberta no `localhost` e nele, fechada para o IP da rede); este roteiro segue a documentação do Tailscale e não foi testado com uma conta real. Se algum nome de botão ou tela estiver diferente do atual, a documentação oficial (https://tailscale.com/docs) prevalece.
 
 > Observação: os scripts de Mac/Linux (`.sh`) foram testados. Os de Windows (`.bat`) seguem o mesmo roteiro, mas não pude executá-los em um Windows; se algum falhar, mande a mensagem de erro.
