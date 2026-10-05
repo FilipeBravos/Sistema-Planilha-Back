@@ -32,11 +32,10 @@ public class RegistroDiario {
     private LocalTime horaInicialFilipe;
     private LocalTime horaFinalFilipe;
 
-    @Column(nullable = false)
-    private int kmInicial;
+    // Km é opcional: pode ficar em branco.
+    private Integer kmInicial;
 
-    @Column(nullable = false)
-    private int kmFinal;
+    private Integer kmFinal;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal cargaPostoVagner = BigDecimal.ZERO;
@@ -68,11 +67,11 @@ public class RegistroDiario {
     public LocalTime getHoraFinalFilipe() { return horaFinalFilipe; }
     public void setHoraFinalFilipe(LocalTime v) { this.horaFinalFilipe = v; }
 
-    public int getKmInicial() { return kmInicial; }
-    public void setKmInicial(int kmInicial) { this.kmInicial = kmInicial; }
+    public Integer getKmInicial() { return kmInicial; }
+    public void setKmInicial(Integer kmInicial) { this.kmInicial = kmInicial; }
 
-    public int getKmFinal() { return kmFinal; }
-    public void setKmFinal(int kmFinal) { this.kmFinal = kmFinal; }
+    public Integer getKmFinal() { return kmFinal; }
+    public void setKmFinal(Integer kmFinal) { this.kmFinal = kmFinal; }
 
     public BigDecimal getCargaPostoVagner() { return cargaPostoVagner; }
     public void setCargaPostoVagner(BigDecimal v) { this.cargaPostoVagner = v; }

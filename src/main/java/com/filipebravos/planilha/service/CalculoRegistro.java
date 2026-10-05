@@ -43,7 +43,11 @@ public final class CalculoRegistro {
         return totalMinutosVagner(r) + totalMinutosFilipe(r);
     }
 
-    public static int totalKm(RegistroDiario r) {
+    /** Km final - Km inicial; em branco (null) se qualquer um dos dois não foi informado. */
+    public static Integer totalKm(RegistroDiario r) {
+        if (r.getKmInicial() == null || r.getKmFinal() == null) {
+            return null;
+        }
         return r.getKmFinal() - r.getKmInicial();
     }
 
@@ -88,7 +92,10 @@ public final class CalculoRegistro {
         for (RegistroDiario r : registros) {
             minVagner += totalMinutosVagner(r);
             minFilipe += totalMinutosFilipe(r);
-            km += totalKm(r);
+            Integer kmDoDia = totalKm(r);
+            if (kmDoDia != null) {
+                km += kmDoDia; // dias sem Km informado não entram na soma
+            }
             brutoVagner = brutoVagner.add(r.getValorVagner());
             brutoFilipe = brutoFilipe.add(r.getValorFilipe());
             postoVagner = postoVagner.add(r.getCargaPostoVagner());
