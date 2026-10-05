@@ -31,11 +31,11 @@ CORS liberado para `http://localhost:4200` (variável `CORS_ORIGINS`).
 | DELETE | `/api/emprestimos/{id}` | Remove empréstimo |
 | GET | `/api/relatorios/dashboard?inicio=&fim=` | Relatório consolidado por mês (receita, despesas, empréstimos) |
 
-Corpo do POST/PUT: `data, horaInicialVagner, horaFinalVagner, horaInicialFilipe, horaFinalFilipe, kmInicial, kmFinal, cargaPostoVagner, cargaPostoFilipe, valorVagner, valorFilipe`. O horário de cada pessoa é opcional, mas inicial e final devem vir juntos (ou ambos em branco).
+Corpo do POST/PUT: `data, horaInicialVagner, horaFinalVagner, horaInicialFilipe, horaFinalFilipe, kmInicial, kmFinal, cargaPostoVagner, cargaPostoFilipe, valorVagner, valorFilipe`. **`kmInicial` e `kmFinal` são opcionais** (podem ficar em branco). O horário de cada pessoa é opcional, mas inicial e final devem vir juntos (ou ambos em branco).
 
 ## Cálculos (feitos no backend)
 - Total de horas de cada pessoa = hora final − hora inicial (turno que vira a meia-noite é tratado); total do dia = Vagner + Filipe
-- Total de Km = Km final − Km inicial
+- Total de Km = Km final − Km inicial (em branco quando um dos dois Km não foi informado; esses dias não entram na soma de Km do resumo)
 - Líquido Vagner = Valor Vagner − Carga Posto do Vagner; Líquido Filipe = Valor Filipe − Carga Posto do Filipe (cada um informa a sua carga)
 - Resumo: horas do Vagner, do Filipe e dos dois juntos (soma), faturamento bruto e líquido por pessoa e total.
 

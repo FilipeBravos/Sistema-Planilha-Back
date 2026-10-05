@@ -11,6 +11,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class CalculoRegistroTest {
 
@@ -19,7 +20,7 @@ class CalculoRegistroTest {
     }
 
     private RegistroDiario registro(String data, String iniV, String fimV, String iniF, String fimF,
-                                    int kmIni, int kmFim, String postoV, String postoF, String vagner, String filipe) {
+                                    Integer kmIni, Integer kmFim, String postoV, String postoF, String vagner, String filipe) {
         RegistroDiario r = new RegistroDiario();
         r.setData(LocalDate.parse(data));
         r.setHoraInicialVagner(t(iniV));
@@ -46,6 +47,19 @@ class CalculoRegistroTest {
         assertEquals(new BigDecimal("150.00"), CalculoRegistro.liquidoVagner(r));
         assertEquals(new BigDecimal("80.00"), CalculoRegistro.liquidoFilipe(r));
         assertEquals("Segunda-feira", CalculoRegistro.diaSemana(r));
+    }
+
+    @Test
+    void kmEmBrancoNaoQuebraOsCalculosENaoEntraNaSoma() {
+        RegistroDiario semKm = registro("2026-09-28", "08:00", "12:00", null, null, null, null, "0", "0", "100", "0");
+        RegistroDiario soFinal = registro("2026-09-29", "08:00", "12:00", null, null, null, 500, "0", "0", "100", "0");
+        RegistroDiario comKm = registro("2026-09-30", "08:00", "12:00", null, null, 100, 160, "0", "0", "100", "0");
+
+        assertNull(CalculoRegistro.totalKm(semKm));
+        assertNull(CalculoRegistro.totalKm(soFinal));
+        assertEquals(60, CalculoRegistro.totalKm(comKm));
+        assertEquals(60, CalculoRegistro.resumir(List.of(semKm, soFinal, comKm)).kmTotal());
+        assertEquals(0, CalculoRegistro.resumir(List.of(semKm)).kmTotal());
     }
 
     @Test
