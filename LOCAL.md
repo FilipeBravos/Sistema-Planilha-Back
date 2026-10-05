@@ -81,7 +81,7 @@ O **Tailscale** é uma VPN pessoal. Ele liga o computador dessa pessoa ao seu po
 O sistema continua rodando no **seu** computador, com os mesmos dados de todos. A outra pessoa só abre um endereço no navegador.
 
 ### Parte 1: você, no computador principal
-1. Crie uma conta gratuita no Tailscale (https://login.tailscale.com), instale o aplicativo (https://tailscale.com/download) no computador principal e entre com a sua conta.
+1. Crie uma conta gratuita no Tailscale (https://login.tailscale.com; o painel de administração fica em https://console.tailscale.com), instale o aplicativo (https://tailscale.com/download) no computador principal e entre com a sua conta.
 2. No `.env.local`, mude para `ACESSO_REDE=tailscale` e rode o `iniciar` de novo. Com essa opção o sistema é publicado **só** no `localhost` e no endereço Tailscale do seu computador: quem usar o Tailscale consegue abrir, mas **os aparelhos do seu Wi-Fi e de qualquer outra rede continuam sem acesso**. O `iniciar` mostra o endereço para passar à pessoa. Se o Tailscale não estiver instalado e conectado, o `iniciar` **para** com um aviso, em vez de abrir o sistema para outras redes.
    (`ACESSO_REDE=sim` também funcionaria, mas abriria o sistema para todo o seu Wi-Fi; só use se você também quiser isso.)
 3. **Crie o login da pessoa.** Ainda no `.env.local`, acrescente o nome dela no fim de `APP_USUARIOS_INICIAIS`:
@@ -89,8 +89,8 @@ O sistema continua rodando no **seu** computador, com os mesmos dados de todos. 
    APP_USUARIOS_INICIAIS=filipe:senha-do-filipe1,vagner:senha-do-vagner1,maria:senha-da-maria1
    ```
    Salve e rode o `iniciar` de novo. Isso cria **só** o usuário novo e não mexe nas senhas dos outros. A senha precisa ter 8 ou mais caracteres e não pode ter vírgula. Passe a senha provisória para a pessoa e peça que ela a troque no primeiro acesso ("Alterar senha").
-4. Anote o **endereço Tailscale** do seu computador: o próprio `iniciar` mostra, e também aparece no aplicativo do Tailscale ou na página "Machines" do painel (https://login.tailscale.com/admin/machines). Ele parece com `100.101.102.103`.
-5. **Compartilhe o seu computador com a pessoa:** no painel, em "Machines", encontre o seu computador e escolha a opção de **compartilhar** ("Share"). Envie o convite por e-mail ou copie o link e mande para ela. Use o **compartilhamento de uma máquina**, e não o convite de usuário para a sua rede: assim ela enxerga **só o seu computador**, e não o resto da sua rede.
+4. Anote o **endereço Tailscale** do seu computador: o próprio `iniciar` mostra, e também aparece no aplicativo do Tailscale ou na página "Machines" do painel (https://console.tailscale.com/admin/machines). Ele parece com `100.101.102.103`.
+5. **Compartilhe o seu computador com a pessoa:** no painel, em "Machines", encontre o seu computador, clique nos três pontinhos (⋯) da linha dele e escolha **compartilhar** ("Share"). Envie o convite por e-mail ou copie o link e mande para ela. Use o **compartilhamento de uma máquina**, e não o convite de usuário para a sua rede ("Invite external users", na página "Users"): assim ela enxerga **só o seu computador**, e não o resto da sua rede. O compartilhamento também é o caminho certo quando a pessoa **já tem conta (e rede) própria** no Tailscale.
 
 ### Parte 2: a outra pessoa
 1. Instalar o Tailscale (computador ou celular), criar a **própria** conta gratuita e entrar.
@@ -110,13 +110,19 @@ O navegador pode mostrar "Não seguro", por ser `http`. Isso é esperado: o tún
      ```
      docker compose -f docker-compose.local.yml --env-file .env.local exec db psql -U planilha planilha -c "delete from usuario where login='maria'"
      ```
-- **Se a pessoa não conseguir abrir:**
-  - Confirme que o Tailscale está conectado nos **dois** computadores e que o convite foi aceito.
-  - No Tailscale do **seu** computador, "Permitir conexões de entrada" ("Allow incoming connections") precisa estar ligado.
-  - Confirme que o sistema está de pé no seu computador (`http://localhost:8080` abre) e que o `.env.local` está com `ACESSO_REDE=tailscale` (ou `sim`) e você rodou o `iniciar` depois de mudar.
-  - No Windows, se o Firewall bloquear, crie uma regra de entrada liberando a porta 8080 para os endereços `100.64.0.0/10` (a faixa de endereços do Tailscale).
+- **Se a pessoa não conseguir abrir** (o navegador diz "A conexão expirou"/"tempo esgotado", ou seja, nada respondeu), siga esta ordem:
+  1. **No computador dela**, abra o Prompt de Comando e rode `tailscale ping ENDEREÇO-TAILSCALE` (o do seu computador, por exemplo `tailscale ping 100.101.102.103`):
+     - **`pong from …`**: o caminho está certo. Se a página ainda não abre, é o Firewall do seu computador (passo 3).
+     - **`no matching peer`**: o Tailscale dela está conectado a **outra rede** (por exemplo, a rede que ela criou ao fazer a própria conta), onde o seu computador não existe. Rode `tailscale switch --list` e troque para a sua rede com `tailscale switch` (ou pelo ícone do Tailscale, no canto do relógio, na opção de trocar de conta). Se a sua rede não aparecer na lista, use o **Share** do passo 5 em vez do convite de usuário, usando o e-mail da conta dela.
+     - **Erro de conexão, ou o comando `tailscale` não existe**: o Tailscale não está instalado ou conectado no computador dela.
+  2. **No seu computador**, confirme que o Tailscale está conectado, que "Permitir conexões de entrada" ("Allow incoming connections") está ligado e que o sistema abre em `http://localhost:8080`. Confirme também que o `.env.local` está com `ACESSO_REDE=tailscale` (ou `sim`) e que você rodou o `iniciar` depois de mudar.
+  3. **Firewall do Windows:** se o `tailscale ping` responde mas a página não abre, libere a porta para os endereços do Tailscale. Abra o **PowerShell como administrador** e rode (a regra vale só para o Tailscale e não abre o seu Wi-Fi):
+     ```
+     New-NetFirewallRule -DisplayName "Sistema Planilha (Tailscale 8080)" -Direction Inbound -Protocol TCP -LocalPort 8080 -RemoteAddress 100.64.0.0/10 -Action Allow
+     ```
+     Para desfazer: `Remove-NetFirewallRule -DisplayName "Sistema Planilha (Tailscale 8080)"`.
 - **Segurança:** mantenha senhas longas e diferentes para cada pessoa, e só compartilhe o computador com quem você conhece.
 
-> Observação: a publicação só pelo endereço Tailscale foi testada com um endereço simulado (porta aberta no `localhost` e nele, fechada para o IP da rede); este roteiro segue a documentação do Tailscale e não foi testado com uma conta real. Se algum nome de botão ou tela estiver diferente do atual, a documentação oficial (https://tailscale.com/docs) prevalece.
+> Observação: o roteiro do Tailscale foi validado em um teste real: `iniciar.bat` num Windows 11 com o Tailscale 1.102.4 mostrou o endereço Tailscale, e outro computador, depois de ajustar a conexão dele ao Tailscale, abriu a tela de login. A publicação só pelo endereço Tailscale também foi testada com Docker em um endereço simulado (porta aberta no `localhost` e nele, fechada para o IP da rede). Se algum nome de botão ou tela do Tailscale estiver diferente do atual, a documentação oficial (https://tailscale.com/docs) prevalece.
 
 > Observação: os scripts de Mac/Linux (`.sh`) foram testados. Os de Windows (`.bat`) seguem o mesmo roteiro, mas não pude executá-los em um Windows; se algum falhar, mande a mensagem de erro.
