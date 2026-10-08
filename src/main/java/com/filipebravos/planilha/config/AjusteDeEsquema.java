@@ -11,9 +11,10 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Bancos criados antes de o Km virar opcional têm as colunas como NOT NULL, e o {@code ddl-auto=update}
- * do Hibernate não relaxa essa restrição. Este ajuste é seguro de repetir: se a coluna já aceita vazio,
- * nada muda.
+ * Bancos antigos têm as colunas km_inicial/km_final (Km único, antes de ser separado por pessoa) como
+ * NOT NULL, e o {@code ddl-auto=update} do Hibernate nem remove nem relaxa essas colunas. Sem este ajuste,
+ * os novos registros (que não preenchem mais essas colunas) seriam recusados. É seguro de repetir: se a
+ * coluna não existe ou já aceita vazio, nada muda.
  */
 @Component
 public class AjusteDeEsquema implements ApplicationRunner {

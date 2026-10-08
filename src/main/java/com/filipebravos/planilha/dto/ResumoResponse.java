@@ -17,5 +17,7 @@ public record ResumoResponse(
         BigDecimal liquidoVagner,
         BigDecimal liquidoFilipe,
         BigDecimal liquidoTotal,
+        int kmVagner,
+        int kmFilipe,
         int kmTotal) {
 }

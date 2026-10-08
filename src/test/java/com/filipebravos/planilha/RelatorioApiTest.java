@@ -47,8 +47,8 @@ class RelatorioApiTest {
         r.setData(LocalDate.parse("2026-09-10"));
         r.setHoraInicialVagner(LocalTime.of(8, 0));
         r.setHoraFinalVagner(LocalTime.of(12, 0));
-        r.setKmInicial(0);
-        r.setKmFinal(10);
+        r.setKmInicialVagner(0);
+        r.setKmFinalVagner(10);
         r.setValorVagner(new BigDecimal("300"));
         r.setCargaPostoVagner(new BigDecimal("50"));
         r.setValorFilipe(new BigDecimal("200"));
