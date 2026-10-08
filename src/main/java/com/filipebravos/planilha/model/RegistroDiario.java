@@ -32,10 +32,11 @@ public class RegistroDiario {
     private LocalTime horaInicialFilipe;
     private LocalTime horaFinalFilipe;
 
-    // Km é opcional: pode ficar em branco.
-    private Integer kmInicial;
-
-    private Integer kmFinal;
+    // Km de cada motorista; opcional, pode ficar em branco.
+    private Integer kmInicialVagner;
+    private Integer kmFinalVagner;
+    private Integer kmInicialFilipe;
+    private Integer kmFinalFilipe;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal cargaPostoVagner = BigDecimal.ZERO;
@@ -67,11 +68,18 @@ public class RegistroDiario {
     public LocalTime getHoraFinalFilipe() { return horaFinalFilipe; }
     public void setHoraFinalFilipe(LocalTime v) { this.horaFinalFilipe = v; }
 
-    public Integer getKmInicial() { return kmInicial; }
-    public void setKmInicial(Integer kmInicial) { this.kmInicial = kmInicial; }
+    public Integer getKmInicialVagner() { return kmInicialVagner; }
+    public void setKmInicialVagner(Integer v) { this.kmInicialVagner = v; }
 
-    public Integer getKmFinal() { return kmFinal; }
-    public void setKmFinal(Integer kmFinal) { this.kmFinal = kmFinal; }
+    public Integer getKmFinalVagner() { return kmFinalVagner; }
+    public void setKmFinalVagner(Integer v) { this.kmFinalVagner = v; }
+
+    public Integer getKmInicialFilipe() { return kmInicialFilipe; }
+    public void setKmInicialFilipe(Integer v) { this.kmInicialFilipe = v; }
+
+    public Integer getKmFinalFilipe() { return kmFinalFilipe; }
+    public void setKmFinalFilipe(Integer v) { this.kmFinalFilipe = v; }
+
 
     public BigDecimal getCargaPostoVagner() { return cargaPostoVagner; }
     public void setCargaPostoVagner(BigDecimal v) { this.cargaPostoVagner = v; }

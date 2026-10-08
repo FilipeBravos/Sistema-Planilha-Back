@@ -15,8 +15,10 @@ public record RegistroRequest(
         LocalTime horaFinalVagner,
         LocalTime horaInicialFilipe,
         LocalTime horaFinalFilipe,
-        @Min(0) Integer kmInicial,
-        @Min(0) Integer kmFinal,
+        @Min(0) Integer kmInicialVagner,
+        @Min(0) Integer kmFinalVagner,
+        @Min(0) Integer kmInicialFilipe,
+        @Min(0) Integer kmFinalFilipe,
         @NotNull @PositiveOrZero BigDecimal cargaPostoVagner,
         @NotNull @PositiveOrZero BigDecimal cargaPostoFilipe,
         @NotNull @PositiveOrZero BigDecimal valorVagner,
@@ -32,8 +34,13 @@ public record RegistroRequest(
         return (horaInicialFilipe == null) == (horaFinalFilipe == null);
     }
 
-    @AssertTrue(message = "Km final não pode ser menor que o Km inicial")
-    public boolean isKmValido() {
-        return kmInicial == null || kmFinal == null || kmFinal >= kmInicial;
+    @AssertTrue(message = "Km final do Vagner não pode ser menor que o Km inicial")
+    public boolean isKmVagnerValido() {
+        return kmInicialVagner == null || kmFinalVagner == null || kmFinalVagner >= kmInicialVagner;
+    }
+
+    @AssertTrue(message = "Km final do Filipe não pode ser menor que o Km inicial")
+    public boolean isKmFilipeValido() {
+        return kmInicialFilipe == null || kmFinalFilipe == null || kmFinalFilipe >= kmInicialFilipe;
     }
 }
