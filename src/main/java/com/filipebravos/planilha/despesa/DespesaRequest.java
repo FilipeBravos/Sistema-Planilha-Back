@@ -15,6 +15,7 @@ public record DespesaRequest(
         @NotNull CategoriaDespesa categoria,
         @NotBlank @Size(max = 120) String nome,
         @NotNull LocalDate data,
+        /** Cartão: valor total da compra. Boleto: valor de cada parcela. Demais formas: valor pago. */
         @NotNull @DecimalMin(value = "0.01", message = "deve ser maior que zero") BigDecimal valor,
         @NotNull FormaPagamento formaPagamento,
         @Min(1) @Max(60) Integer parcelas) {

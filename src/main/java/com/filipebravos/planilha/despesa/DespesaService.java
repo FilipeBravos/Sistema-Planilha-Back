@@ -112,9 +112,12 @@ public class DespesaService {
         d.setCategoria(req.categoria());
         d.setNome(req.nome().trim());
         d.setData(req.data());
-        d.setValor(req.valor());
         d.setFormaPagamento(req.formaPagamento());
         d.setParcelas(req.formaPagamento().parcelavel() ? req.parcelas() : null);
+        // Cartão: o valor informado é o total, dividido entre as parcelas.
+        // Boleto: o valor informado é o de cada parcela (fixo); guardamos o total (parcela × parcelas).
+        boolean boletoParcelado = req.formaPagamento() == FormaPagamento.BOLETO && d.getParcelas() != null;
+        d.setValor(boletoParcelado ? req.valor().multiply(BigDecimal.valueOf(d.getParcelas())) : req.valor());
         return d;
     }
 
