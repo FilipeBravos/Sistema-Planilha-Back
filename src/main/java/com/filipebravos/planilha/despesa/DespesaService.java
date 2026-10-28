@@ -69,9 +69,9 @@ public class DespesaService {
         repository.deleteById(id);
     }
 
-    /** Valor de cada parcela; só existe para cartão. */
+    /** Valor de cada parcela; só existe para cartão e boleto. */
     static BigDecimal valorParcela(Despesa d) {
-        if (d.getFormaPagamento() != FormaPagamento.CARTAO || d.getParcelas() == null) {
+        if (!d.getFormaPagamento().parcelavel() || d.getParcelas() == null) {
             return null;
         }
         return d.getValor().divide(BigDecimal.valueOf(d.getParcelas()), 2, RoundingMode.HALF_UP);
@@ -114,7 +114,7 @@ public class DespesaService {
         d.setData(req.data());
         d.setValor(req.valor());
         d.setFormaPagamento(req.formaPagamento());
-        d.setParcelas(req.formaPagamento() == FormaPagamento.CARTAO ? req.parcelas() : null);
+        d.setParcelas(req.formaPagamento().parcelavel() ? req.parcelas() : null);
         return d;
     }
 

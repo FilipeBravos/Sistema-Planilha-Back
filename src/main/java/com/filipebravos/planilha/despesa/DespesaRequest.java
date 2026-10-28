@@ -19,8 +19,8 @@ public record DespesaRequest(
         @NotNull FormaPagamento formaPagamento,
         @Min(1) @Max(60) Integer parcelas) {
 
-    @AssertTrue(message = "Informe em quantas parcelas o cartão foi dividido")
+    @AssertTrue(message = "Informe em quantas parcelas o cartão ou boleto foi dividido")
     public boolean isParcelasValidas() {
-        return formaPagamento != FormaPagamento.CARTAO || parcelas != null;
+        return formaPagamento == null || !formaPagamento.parcelavel() || parcelas != null;
     }
 }

@@ -17,7 +17,7 @@ public final class Vencimentos {
 
     public static List<VencimentoResponse> de(Despesa d) {
         List<VencimentoResponse> lista = new ArrayList<>();
-        if (d.getFormaPagamento() != FormaPagamento.CARTAO || d.getParcelas() == null) {
+        if (!d.getFormaPagamento().parcelavel() || d.getParcelas() == null) {
             lista.add(new VencimentoResponse(d.getId(), d.getCategoria(), d.getNome(), d.getFormaPagamento(),
                     d.getData(), d.getValor(), null, null, d.getData(), d.getValor()));
             return lista;

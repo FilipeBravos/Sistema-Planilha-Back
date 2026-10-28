@@ -82,12 +82,25 @@ class DespesaApiTest {
     }
 
     @Test
-    void parcelasSaoIgnoradasForaDoCartao() throws Exception {
+    void parcelasSaoIgnoradasEmDinheiroECheque() throws Exception {
         mvc.perform(post("/api/despesas").contentType(MediaType.APPLICATION_JSON)
-                        .content(json("MOTO", "SEGURO", "2026-09-10", "200", "BOLETO", "5")))
+                        .content(json("MOTO", "SEGURO", "2026-09-10", "200", "CHEQUE", "5")))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.parcelas").doesNotExist())
                 .andExpect(jsonPath("$.valorParcela").doesNotExist());
+    }
+
+    @Test
+    void boletoTambemPodeSerParcelado() throws Exception {
+        mvc.perform(post("/api/despesas").contentType(MediaType.APPLICATION_JSON)
+                        .content(json("MOTO", "SEGURO", "2026-09-10", "300.00", "BOLETO", "3")))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.parcelas").value(3))
+                .andExpect(jsonPath("$.valorParcela").value(100.0));
+
+        mvc.perform(post("/api/despesas").contentType(MediaType.APPLICATION_JSON)
+                        .content(json("MOTO", "SEGURO", "2026-09-10", "300.00", "BOLETO", "null")))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
