@@ -28,12 +28,21 @@ class VencimentosTest {
     }
 
     @Test
-    void foraDoCartaoTemUmUnicoVencimentoNaDataDaCompra() {
+    void semParcelasTemUmUnicoVencimentoNaDataDaCompra() {
         List<VencimentoResponse> v = Vencimentos.de(despesa("2026-10-10", "250.00", FormaPagamento.BOLETO, null));
         assertEquals(1, v.size());
         assertEquals(LocalDate.parse("2026-10-10"), v.get(0).vencimento());
         assertEquals(new BigDecimal("250.00"), v.get(0).valor());
         assertNull(v.get(0).numeroParcela());
+    }
+
+    @Test
+    void boletoParceladoGeraUmaParcelaPorMes() {
+        List<VencimentoResponse> v = Vencimentos.de(despesa("2026-10-02", "300.00", FormaPagamento.BOLETO, 3));
+        assertEquals(3, v.size());
+        assertEquals(LocalDate.parse("2026-11-02"), v.get(1).vencimento());
+        assertEquals(new BigDecimal("100.00"), v.get(2).valor());
+        assertEquals(3, v.get(2).numeroParcela());
     }
 
     @Test
