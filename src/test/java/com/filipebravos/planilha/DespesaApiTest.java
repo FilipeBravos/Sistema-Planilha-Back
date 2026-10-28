@@ -93,10 +93,19 @@ class DespesaApiTest {
     @Test
     void boletoTambemPodeSerParcelado() throws Exception {
         mvc.perform(post("/api/despesas").contentType(MediaType.APPLICATION_JSON)
-                        .content(json("MOTO", "SEGURO", "2026-09-10", "300.00", "BOLETO", "3")))
+                        .content(json("MOTO", "SEGURO", "2026-09-10", "580.00", "BOLETO", "6")))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.parcelas").value(3))
-                .andExpect(jsonPath("$.valorParcela").value(100.0));
+                .andExpect(jsonPath("$.parcelas").value(6))
+                .andExpect(jsonPath("$.valorParcela").value(580.0))
+                .andExpect(jsonPath("$.valor").value(3480.0));
+
+        // cada vencimento é de 580 (não 3480 / 6 dividido de novo) e o total do período soma as 6 parcelas
+        mvc.perform(get("/api/despesas"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(6))
+                .andExpect(jsonPath("$[0].valor").value(580.0))
+                .andExpect(jsonPath("$[5].valor").value(580.0))
+                .andExpect(jsonPath("$[0].valorTotal").value(3480.0));
 
         mvc.perform(post("/api/despesas").contentType(MediaType.APPLICATION_JSON)
                         .content(json("MOTO", "SEGURO", "2026-09-10", "300.00", "BOLETO", "null")))

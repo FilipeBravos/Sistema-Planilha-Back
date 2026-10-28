@@ -43,13 +43,14 @@ Corpo do POST/PUT: `data, horaInicialVagner, horaFinalVagner, horaInicialFilipe,
 Corpo do POST/PUT: `categoria, nome, data, valor, formaPagamento, parcelas`.
 - `categoria`: `CARRO`, `ENERGIA_ELETRICA`, `MOTO`, `PLANO_DE_SAUDE`, `FARMACIA`, `LORD_E_AMORA`, `FILIPE`, `VAGNER`, `ROMILDA`, `INTERNET_E_TELEFONE`
 - `formaPagamento`: `DINHEIRO`, `CARTAO`, `CHEQUE`, `BOLETO`
-- `parcelas` (1 a 60) é obrigatório no `CARTAO` e ignorado nas outras formas. `valor` é o total; a resposta traz `valorParcela` (valor ÷ parcelas) para cartão.
+- `parcelas` (1 a 60) é obrigatório no `CARTAO` e no `BOLETO` e ignorado nas outras formas. No `CARTAO`, `valor` é o total; a resposta traz `valorParcela` (valor ÷ parcelas) para cartão.
 - `nome` é texto livre (o front sugere os nomes de cada categoria).
 
 ### Vencimentos (parcelas por mês)
 `GET /api/despesas` e `/api/despesas/resumo` trabalham com **vencimentos**, não com a data da compra:
-- Fora do cartão há um vencimento só, na data da compra.
-- No cartão há um vencimento por parcela: a 1ª na data da compra e as demais nos meses seguintes, no mesmo dia (ou no último dia do mês, se o dia não existir).
+- Fora do cartão e do boleto parcelado há um vencimento só, na data da compra.
+- No `BOLETO` o `valor` enviado é o de **cada parcela** (fixo): 6 parcelas de 580 geram 6 vencimentos de 580 (total guardado 3480).
+- No cartão (e no boleto) há um vencimento por parcela: a 1ª na data da compra e as demais nos meses seguintes, no mesmo dia (ou no último dia do mês, se o dia não existir).
 - O valor das parcelas é `valor ÷ parcelas` arredondado; a última parcela absorve a diferença, então a soma é sempre o valor total.
 - Cada item traz `despesaId`, `dataCompra`, `valorTotal`, `parcelas`, `numeroParcela`, `vencimento` e `valor` (o que vence naquela data). Edição e exclusão (`PUT`/`DELETE /api/despesas/{id}`) usam o `despesaId`.
 
