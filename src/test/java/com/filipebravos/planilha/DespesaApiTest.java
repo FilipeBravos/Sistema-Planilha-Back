@@ -113,6 +113,34 @@ class DespesaApiTest {
     }
 
     @Test
+    void cartaoVeronicaSomaNoTotalDaFormaDePagamento() throws Exception {
+        // à vista (1 parcela) em setembro e 2x no cartão da Verônica (valor total dividido), mais um em dinheiro
+        mvc.perform(post("/api/despesas").contentType(MediaType.APPLICATION_JSON)
+                        .content(json("CARRO", "PNEUS", "2026-09-10", "100.00", "CARTAO_VERONICA", "1")))
+                .andExpect(status().isCreated());
+        mvc.perform(post("/api/despesas").contentType(MediaType.APPLICATION_JSON)
+                        .content(json("MOTO", "SEGURO", "2026-09-20", "200.00", "CARTAO_VERONICA", "2")))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.formaPagamento").value("CARTAO_VERONICA"))
+                .andExpect(jsonPath("$.valorParcela").value(100.0));
+        mvc.perform(post("/api/despesas").contentType(MediaType.APPLICATION_JSON)
+                        .content(json("MOTO", "OLEO", "2026-09-21", "50.00", "DINHEIRO", "null")))
+                .andExpect(status().isCreated());
+        mvc.perform(post("/api/despesas").contentType(MediaType.APPLICATION_JSON)
+                        .content(json("MOTO", "OLEO", "2026-09-21", "50.00", "CARTAO_VERONICA", "null")))
+                .andExpect(status().isBadRequest());
+
+        mvc.perform(get("/api/despesas/resumo").param("inicio", "2026-09-01").param("fim", "2026-09-30"))
+                .andExpect(jsonPath("$.total").value(250.0))
+                .andExpect(jsonPath("$.porFormaPagamento[?(@.formaPagamento == 'CARTAO_VERONICA')].total").value(200.0))
+                .andExpect(jsonPath("$.porFormaPagamento[?(@.formaPagamento == 'CARTAO_VERONICA')].quantidade").value(2))
+                .andExpect(jsonPath("$.porFormaPagamento[?(@.formaPagamento == 'DINHEIRO')].total").value(50.0))
+                .andExpect(jsonPath("$.porFormaPagamento[?(@.formaPagamento == 'BOLETO')].quantidade").value(0));
+        mvc.perform(get("/api/despesas/resumo").param("inicio", "2026-10-01").param("fim", "2026-10-31"))
+                .andExpect(jsonPath("$.porFormaPagamento[?(@.formaPagamento == 'CARTAO_VERONICA')].total").value(100.0));
+    }
+
+    @Test
     void cartaoExigeParcelas() throws Exception {
         mvc.perform(post("/api/despesas").contentType(MediaType.APPLICATION_JSON)
                         .content(json("CARRO", "SEGURO", "2026-09-10", "200", "CARTAO", "null")))

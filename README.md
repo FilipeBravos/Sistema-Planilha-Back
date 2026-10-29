@@ -42,8 +42,8 @@ Corpo do POST/PUT: `data, horaInicialVagner, horaFinalVagner, horaInicialFilipe,
 ## Despesas
 Corpo do POST/PUT: `categoria, nome, data, valor, formaPagamento, parcelas`.
 - `categoria`: `CARRO`, `ENERGIA_ELETRICA`, `MOTO`, `PLANO_DE_SAUDE`, `FARMACIA`, `LORD_E_AMORA`, `FILIPE`, `VAGNER`, `ROMILDA`, `INTERNET_E_TELEFONE`
-- `formaPagamento`: `DINHEIRO`, `CARTAO`, `CHEQUE`, `BOLETO`
-- `parcelas` (1 a 60) é obrigatório no `CARTAO` e no `BOLETO` e ignorado nas outras formas. No `CARTAO`, `valor` é o total; a resposta traz `valorParcela` (valor ÷ parcelas) para cartão.
+- `formaPagamento`: `DINHEIRO`, `CARTAO`, `CHEQUE`, `BOLETO`, `CARTAO_VERONICA` (parcelável como o `CARTAO`)
+- `parcelas` (1 a 60) é obrigatório no `CARTAO`, `CARTAO_VERONICA` e `BOLETO` e ignorado nas outras formas. No `CARTAO`, `valor` é o total; a resposta traz `valorParcela` (valor ÷ parcelas) para cartão.
 - `nome` é texto livre (o front sugere os nomes de cada categoria).
 
 ### Vencimentos (parcelas por mês)

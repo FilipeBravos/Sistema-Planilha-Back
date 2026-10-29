@@ -4,10 +4,11 @@ public enum FormaPagamento {
     DINHEIRO,
     CARTAO,
     CHEQUE,
-    BOLETO;
+    BOLETO,
+    CARTAO_VERONICA;
 
-    /** Cartão e boleto podem ser divididos em parcelas, uma por mês. */
+    /** Cartões e boleto podem ser divididos em parcelas, uma por mês. */
     public boolean parcelavel() {
-        return this == CARTAO || this == BOLETO;
+        return this == CARTAO || this == BOLETO || this == CARTAO_VERONICA;
     }
 }
