@@ -39,15 +39,26 @@ public class DespesaService {
     public DespesaResumoResponse resumo(LocalDate inicio, LocalDate fim) {
         Map<CategoriaDespesa, BigDecimal> totais = new EnumMap<>(CategoriaDespesa.class);
         Arrays.stream(CategoriaDespesa.values()).forEach(c -> totais.put(c, BigDecimal.ZERO));
+        Map<FormaPagamento, BigDecimal> porForma = new EnumMap<>(FormaPagamento.class);
+        Map<FormaPagamento, Integer> quantidades = new EnumMap<>(FormaPagamento.class);
+        Arrays.stream(FormaPagamento.values()).forEach(f -> {
+            porForma.put(f, BigDecimal.ZERO);
+            quantidades.put(f, 0);
+        });
         BigDecimal total = BigDecimal.ZERO;
         for (VencimentoResponse v : buscar(null, inicio, fim)) {
             totais.merge(v.categoria(), v.valor(), BigDecimal::add);
+            porForma.merge(v.formaPagamento(), v.valor(), BigDecimal::add);
+            quantidades.merge(v.formaPagamento(), 1, Integer::sum);
             total = total.add(v.valor());
         }
         List<DespesaResumoResponse.TotalCategoria> porCategoria = totais.entrySet().stream()
                 .map(e -> new DespesaResumoResponse.TotalCategoria(e.getKey(), e.getValue()))
                 .toList();
-        return new DespesaResumoResponse(total, porCategoria);
+        List<DespesaResumoResponse.TotalForma> porFormaPagamento = porForma.entrySet().stream()
+                .map(e -> new DespesaResumoResponse.TotalForma(e.getKey(), e.getValue(), quantidades.get(e.getKey())))
+                .toList();
+        return new DespesaResumoResponse(total, porCategoria, porFormaPagamento);
     }
 
     @Transactional
